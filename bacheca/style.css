@@ -241,13 +241,6 @@ body {
     z-index: 1000;
   }
 
-  .navbar::before {
-    content: '';
-    display: flex;
-    flex: 1;
-    align-items: center;
-  }
-
   .navbar > div:first-child {
     display: flex;
     align-items: center;
@@ -258,11 +251,6 @@ body {
     width: 50px;
     height: 50px;
     margin: 0;
-    border-width: 1px;
-  }
-
-  #img-profilo:hover {
-    transform: none;
   }
 
   #h3 {
@@ -293,19 +281,19 @@ body {
   }
 
   .text {
-    font-size: 14px;
-    display: none;
+    font-size: 12px;
+    display: block;
   }
 
   .material-icons {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .logout-btn,
   .login-btn {
     position: static;
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: 12px;
     width: auto;
     min-width: auto;
   }

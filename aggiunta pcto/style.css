@@ -35,19 +35,6 @@ body {
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  background-color: #f0f0f0;
-  border: 2px solid #ddd;
-  transition: all 0.3s ease;
-}
-
-#img-profilo:hover {
-  border-color: #0078d4;
-  transform: scale(1.05);
-}
-
-#img-profilo[src*="blue-profile-icon"] {
-  background-color: #e8f4fd;
-  border-color: #0078d4;
 }
 
 #h3 {
@@ -496,11 +483,6 @@ body {
     width: 50px;
     height: 50px;
     margin: 0;
-    border-width: 1px;
-  }
-
-  #img-profilo:hover {
-    transform: none;
   }
 
   #h3 {
