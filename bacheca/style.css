@@ -412,6 +412,7 @@ body {
 
   .nav-element {
     padding: 6px 8px;
+    border-radius: 50px;
   }
 
   .icon {
