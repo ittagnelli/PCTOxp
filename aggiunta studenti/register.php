@@ -19,7 +19,7 @@ $email = $nome . "." . $cognome . "@istitutoagnelli.it";
 
 $pwd_hash = password_hash($pwd, PASSWORD_DEFAULT);
 
-$img_profilo = null;
+/* $img_profilo = null;
 
 if (isset($_FILES['img_profilo']) && $_FILES['img_profilo']['error'] === UPLOAD_ERR_OK) {
     $fileType = $_FILES['img_profilo']['type'];
@@ -29,10 +29,10 @@ if (isset($_FILES['img_profilo']) && $_FILES['img_profilo']['error'] === UPLOAD_
         $imageData = file_get_contents($_FILES['img_profilo']['tmp_name']);
         $img_profilo = 'data:' . $fileType . ';base64,' . base64_encode($imageData);
     }
-}
+} */
 
-$stmt = $conn->prepare("INSERT INTO utenti (nome, cognome, email, password, ruolo, Img_profilo) VALUES (?, ?, ?, ?, ?, ?)");
-$stmt->bind_param("ssssss", $nome, $cognome, $email, $pwd_hash, $ruolo, $img_profilo);
+$stmt = $conn->prepare("INSERT INTO utenti (nome, cognome, email, password, ruolo) VALUES (?, ?, ?, ?, ?)");
+$stmt->bind_param("sssss", $nome, $cognome, $email, $pwd_hash, $ruolo);
 
 if ($stmt->execute()) {
     echo "Account creato con successo!<br>";

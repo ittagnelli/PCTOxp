@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Creato il: Set 10, 2025 alle 22:13
+-- Creato il: Ott 03, 2025 alle 00:55
 -- Versione del server: 10.4.32-MariaDB
 -- Versione PHP: 8.2.12
 
@@ -39,9 +39,8 @@ CREATE TABLE `iscrizioni` (
 --
 
 INSERT INTO `iscrizioni` (`id`, `studente_id`, `pcto_id`, `data_iscrizione`) VALUES
-(8, 1, 18, '2025-09-10 17:34:06'),
-(9, 1, 22, '2025-09-10 17:34:23'),
-(10, 1, 26, '2025-09-10 17:34:25');
+(0, 1, 17, '2025-10-02 22:43:29'),
+(0, 1, 18, '2025-10-02 22:43:33');
 
 -- --------------------------------------------------------
 
@@ -84,80 +83,43 @@ INSERT INTO `pcto` (`id`, `title`, `description`, `start_date`, `end_date`, `cre
 
 CREATE TABLE `utenti` (
   `id` int(10) UNSIGNED NOT NULL,
-  `nome` varchar(50) NOT NULL,
-  `cognome` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `ruolo` enum('utente','operatore') NOT NULL,
-  `Img_profilo` longblob NOT NULL,
-  `data_creazione` timestamp NOT NULL DEFAULT current_timestamp()
+  `Nome` varchar(50) NOT NULL,
+  `Cognome` varchar(50) NOT NULL,
+  `Email` varchar(100) NOT NULL,
+  `Password` varchar(255) NOT NULL,
+  `Ruolo` enum('utente','operatore') NOT NULL,
+  `Img_profilo` mediumtext DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dump dei dati per la tabella `utenti`
 --
 
-INSERT INTO `utenti` (`id`, `nome`, `cognome`, `email`, `password`, `ruolo`, `Img_profilo`, `data_creazione`) VALUES
-(1, 'gabriele', 'savio', 'gabriele.savio@istitutoagnelli.it', '$2y$10$lQOmciwpkV2P1V9RxVaq2OAxj8EH5NyvS7xVCsFCChdCNyiUt.5my', 'utente', 0x75706c6f6164732f64656661756c742e706e67, '2025-09-05 13:21:30'),
-(3, 'antonio', 'mancuso', 'antonio.mancuso@istitutoagnelli.it', '$2y$10$wS6wvRUm4f2fukit/0stjuZm571WGjHlQfD0YuKX2roUe0PMJnpFm', 'operatore', 0x75706c6f6164732f64656661756c742e706e67, '2025-09-05 13:22:33');
+INSERT INTO `utenti` (`id`, `Nome`, `Cognome`, `Email`, `Password`, `Ruolo`, `Img_profilo`, `created_at`) VALUES
+(1, 'Gabriele', 'SAVIO', 'gabriele.savio@istitutoagnelli.it', '$2y$10$gQt8AQGFeyE8SwU7DNbOUOjuymubjytKSNCuTyN/2W.otzzt.xWh6', 'utente', NULL, '2025-10-02 22:42:44'),
+(2, 'Gabriele', 'Savio', 'gabriele.savio2008@gmail.com', '$2y$10$J73ddyf9QU46QIvVKR7tKeuXaiszacsCIn0byrykNG7WsJv3W49wS', 'operatore', 'https://lh3.googleusercontent.com/a/ACg8ocIc8gif2QovJxqiFF-ECxVltXghcXfBZ2npob-EjWvGK6K-ivxb=s96-c', '2025-10-02 22:45:51');
 
 --
 -- Indici per le tabelle scaricate
 --
 
 --
--- Indici per le tabelle `iscrizioni`
---
-ALTER TABLE `iscrizioni`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `studente_id` (`studente_id`,`pcto_id`),
-  ADD KEY `pcto_id` (`pcto_id`);
-
---
--- Indici per le tabelle `pcto`
---
-ALTER TABLE `pcto`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indici per le tabelle `utenti`
 --
 ALTER TABLE `utenti`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `email` (`email`);
+  ADD UNIQUE KEY `Email` (`Email`);
 
 --
 -- AUTO_INCREMENT per le tabelle scaricate
 --
 
 --
--- AUTO_INCREMENT per la tabella `iscrizioni`
---
-ALTER TABLE `iscrizioni`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
-
---
--- AUTO_INCREMENT per la tabella `pcto`
---
-ALTER TABLE `pcto`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
-
---
 -- AUTO_INCREMENT per la tabella `utenti`
 --
 ALTER TABLE `utenti`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- Limiti per le tabelle scaricate
---
-
---
--- Limiti per la tabella `iscrizioni`
---
-ALTER TABLE `iscrizioni`
-  ADD CONSTRAINT `iscrizioni_ibfk_1` FOREIGN KEY (`studente_id`) REFERENCES `utenti` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `iscrizioni_ibfk_2` FOREIGN KEY (`pcto_id`) REFERENCES `pcto` (`id`) ON DELETE CASCADE;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

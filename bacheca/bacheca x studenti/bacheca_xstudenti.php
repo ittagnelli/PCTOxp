@@ -49,10 +49,6 @@ if (empty($utente['Img_profilo'])) {
       />
       <h3 id="h3"><?php echo htmlspecialchars($utente['Nome'] . " " . $utente['Cognome']); ?></h3>
       <div class="login">
-        <div class="nav-element" onclick="window.location.href = './bacheca_xstudenti.php'">
-          <span class="material-icons icon">view_timeline</span>
-          <span class="text">Bacheca</span>
-        </div>
         <a href="../../login/logout.php" class="logout-btn">
           <span class="material-icons">account_circle</span>
           Logout

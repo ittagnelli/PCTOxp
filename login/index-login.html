@@ -5,22 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="style.css" />
     <title>Login - PCTOxp</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div class="login-container">
       <div class="logo">
-        <img src="../aggiunta pcto/assets/logo/logo_PCTOxp.png" alt="Logo PCTOxp" />
+        <img
+          src="../aggiunta pcto/assets/logo/logo_PCTOxp.png"
+          alt="Logo PCTOxp"
+        />
       </div>
-      <h2>Accedi al tuo Account</h2>
-      <form action="login.php" method="POST">
-        <label for="email">Email</label>
-        <input type="email" name="email" id="email" required />
+      <h2>Accedi con Google</h2>
+      <p class="info-text">
+        Utilizza il tuo account istituzionale agnelli per accedere
+      </p>
 
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" required />
-
-        <button type="submit">Accedi</button>
-      </form>
+      <div
+        class="singin-google"
+        id="g_id_onload"
+        data-client_id="888476805039-939mpjj3ant15063om190354dhotu1hh.apps.googleusercontent.com"
+        data-callback="handleCredentialResponse"
+        data-auto_prompt="false"
+        data-login_uri="http://localhost/PCTOxp/login/index-login.html"
+      ></div>
+      <div
+        class="g_id_signin singin-google"
+        data-type="standard"
+        data-size="large"
+        data-theme="outline"
+        data-text="signin_with"
+        data-shape="rectangular"
+        data-logo_alignment="left"
+      ></div>
     </div>
+
+    <script>
+      function handleCredentialResponse(response) {
+        fetch("google_login.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `credential=${response.credential}`,
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.href = data.redirect;
+            } else {
+              alert("Errore di autenticazione Google: " + data.error);
+            }
+          })
+          .catch((error) => {
+            console.error("Errore durante l'autenticazione Google:", error);
+            alert("Si è verificato un errore durante il login con Google.");
+          });
+      }
+    </script>
   </body>
 </html>
