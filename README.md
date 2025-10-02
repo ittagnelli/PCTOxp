@@ -60,4 +60,4 @@ PCTOxp è sviluppato e mantenuto per l'Istituto Agnelli. Per segnalazioni, sugge
 
 ---
 
-**PCTOxp** - Semplificare i PCTO, un click alla volta ✨
+**PCTOxp** - Semplificare i PCTO, un click alla volta
