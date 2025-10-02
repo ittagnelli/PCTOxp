@@ -1,6 +1,8 @@
-#![Logo PCTOxp](https://github.com/ittagnelli/PCTOxp/blob/main/aggiunta%20pcto/assets/logo/logo_PCTOxp.png) PCTOxp - La piattaforma PCTO dell'Istituto Agnelli
+#PCTOxp - La piattaforma PCTO dell'Istituto Agnelli
 
 Ciao! Benvenuto nel mondo di PCTOxp, il nostro sistema per rendere i Percorsi per le Competenze Trasversali e l'Orientamento più semplici e accessibili per tutti.
+
+![Logo PCTOxp](https://github.com/ittagnelli/PCTOxp/blob/main/aggiunta%20pcto/assets/logo/logo_PCTOxp.png)
 
 ## Cos'è PCTOxp?
 
