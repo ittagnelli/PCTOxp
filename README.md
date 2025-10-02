@@ -54,8 +54,6 @@ PCTOxp nasce dall'idea di semplificare la vita di studenti e docenti quando si t
 - **Gestione sessioni** sicura con controlli di autenticazione
 - **Prevenzione duplicati** nelle iscrizioni
 
-## Caratteristiche Tecniche
-
 ## Supporto e Contributi
 
 PCTOxp è sviluppato e mantenuto per l'Istituto Agnelli. Per segnalazioni, suggerimenti o contributi al codice, contatta il team di sviluppo.
