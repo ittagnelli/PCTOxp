@@ -38,8 +38,6 @@ PCTOxp nasce dall'idea di semplificare la vita di studenti e docenti quando si t
 4. Usa il **calendario** per selezionare data di inizio e fine
 5. Salva e monitora le iscrizioni dalla tua dashboard
 
-## Struttura del Progetto
-
 ## Tecnologie
 
 **Backend**: PHP + MySQL per una gestione sicura e affidabile dei dati
