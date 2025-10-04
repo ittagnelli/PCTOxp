@@ -1,3 +1,13 @@
+// Funzione per formattare le date da YYYY-MM-DD a gg-mm-aaaa
+function formatDate(dateString) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+}
+
 function loadBacheca() {
   fetch("../../aggiunta pcto/database/get_pcto.php")
     .then((res) => {
@@ -21,8 +31,8 @@ function loadBacheca() {
         div.innerHTML = `
           <span class="pcto-title">${pcto.title}</span>
           <span class="pcto-desc">${pcto.description}</span>
-          <span class="pcto-start">${pcto.end_date}</span>
-          <span class="pcto-end">${pcto.start_date}</span>
+          <span class="pcto-start">${formatDate(pcto.start_date)}</span>
+          <span class="pcto-end">${formatDate(pcto.end_date)}</span>
         `;
         box.appendChild(div);
       });

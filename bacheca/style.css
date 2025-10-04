@@ -11,6 +11,7 @@ body {
     "navbar bacheca";
   gap: 0px;
   height: 100%;
+  overflow-x: hidden;
 }
 
 /* NAVBAR */
@@ -104,8 +105,8 @@ body {
   grid-template-areas:
     "title title start end"
     "desc desc start end"
-    "desc desc button button"
-    "studenti studenti button button";
+    "desc desc . button"
+    "studenti studenti . button";
   gap: 10px;
   background: transparent;
   border: 1px solid #ccc;
@@ -140,8 +141,101 @@ body {
 
 .pcto-item .iscriviti {
   grid-area: button;
+  justify-content: flex-end;
+  transition: width 0.3s ease;
+  position: relative;
+  z-index: 2;
+  transform-origin: left center;
+}
+
+.button-container {
+  grid-area: button;
   justify-self: end;
   align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 5px;
+  position: relative;
+  width: 160px;
+  height: 35px;
+  margin-left: auto;
+  transform: translateX(38px);
+}
+
+.unsubscribe-btn {
+  height: 35px;
+  width: 35px;
+  background-color: rgb(255, 175, 175);
+  color: rgb(0, 0, 0);
+  border: 1px solid #ff0000;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  transform: translateX(-10px);
+  opacity: 0;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.unsubscribe-btn.show {
+  display: block;
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.iscriviti.shrinking {
+  width: 80px;
+}
+
+.iscriviti.animate-shrink {
+  animation: shrinkForSpace 0.3s ease forwards;
+  transform-origin: left center;
+}
+
+.iscriviti.animate-expand {
+  animation: expandBack 0.3s ease forwards;
+  transform-origin: left center;
+}
+
+.unsubscribe-btn.animate-in {
+  animation: slideInFromRight 0.3s ease forwards;
+}
+
+@keyframes shrinkForSpace {
+  from {
+    width: 155px;
+  }
+  to {
+    width: 80px;
+  }
+}
+
+@keyframes expandBack {
+  from {
+    width: 80px;
+  }
+  to {
+    width: 155px;
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .login-btn,
@@ -364,6 +458,42 @@ body {
     font-size: 16px;
     width: 100%;
     max-width: none;
+  }
+
+  .button-container {
+    justify-self: stretch;
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 15px;
+  }
+
+  .button-container .iscriviti {
+    margin-top: 0;
+    width: auto;
+    flex: 1;
+  }
+
+  .button-container .unsubscribe-btn {
+    position: relative;
+    right: auto;
+    transform: translateX(20px);
+    width: 35px;
+    height: 35px;
+  }
+
+  .button-container .unsubscribe-btn.show {
+    transform: translateX(0);
+  }
+
+  .button-container .iscriviti.shrinking {
+    width: 80px;
+  }
+
+  .button-container {
+    gap: 5px;
   }
 
   .studenti-iscritti {
