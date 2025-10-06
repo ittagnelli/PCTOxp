@@ -31,8 +31,8 @@ body {
 #img-profilo {
   display: block;
   margin: auto;
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
 }
@@ -91,7 +91,7 @@ body {
 #bacheca-title {
   opacity: 1;
   padding: 20px;
-  position:sticky;
+  position: sticky;
   top: 0px;
   background: #fff;
   z-index: 11;
