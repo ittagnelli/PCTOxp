@@ -21,14 +21,6 @@
       </p>
 
       <div
-        class="singin-google"
-        id="g_id_onload"
-        data-client_id="888476805039-939mpjj3ant15063om190354dhotu1hh.apps.googleusercontent.com"
-        data-callback="handleCredentialResponse"
-        data-auto_prompt="false"
-        data-login_uri="http://localhost/PCTOxp/login/index-login.html"
-      ></div>
-      <div
         class="g_id_signin singin-google"
         data-type="standard"
         data-size="large"
@@ -40,26 +32,32 @@
     </div>
 
     <script>
+      window.onload = function () {
+        google.accounts.id.initialize({
+          client_id: "888476805039-939mpjj3ant15063om190354dhotu1hh.apps.googleusercontent.com",
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: false,
+          use_fedcm_for_prompt: true
+        });
+        google.accounts.id.renderButton(
+          document.querySelector('.g_id_signin'),
+          { theme: "outline", size: "large", type: "standard", text: "signin_with", shape: "rectangular", logo_alignment: "left" }
+        );
+      };
       function handleCredentialResponse(response) {
+        if (!response.credential) { alert('Errore di autenticazione.'); return; }
         fetch("google_login.php", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: `credential=${response.credential}`,
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `credential=${encodeURIComponent(response.credential)}`,
         })
           .then((res) => res.json())
           .then((data) => {
-            if (data.success) {
-              window.location.href = data.redirect;
-            } else {
-              alert("Errore di autenticazione Google: " + data.error);
-            }
+            if (data.success) { window.location.href = data.redirect; }
+            else { alert("Errore di autenticazione Google: " + (data.error || 'Errore')); }
           })
-          .catch((error) => {
-            console.error("Errore durante l'autenticazione Google:", error);
-            alert("Si è verificato un errore durante il login con Google.");
-          });
+          .catch(() => alert("Errore di connessione durante il login."));
       }
     </script>
   </body>

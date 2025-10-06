@@ -1,7 +1,12 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+header("Access-Control-Allow-Origin: http://localhost");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 session_start();
 header('Content-Type: application/json');
 
@@ -30,6 +35,7 @@ try {
     $client_id = '888476805039-939mpjj3ant15063om190354dhotu1hh.apps.googleusercontent.com';
     $client = new Google\Client();
     $client->setClientId($client_id);
+    $client->setHttpClient(new GuzzleHttp\Client(['verify' => false]));
     
     $payload = $client->verifyIdToken($credential);
 
