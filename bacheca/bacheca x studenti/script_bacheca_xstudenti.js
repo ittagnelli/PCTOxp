@@ -1,6 +1,5 @@
 let userIscrizioni = [];
 
-// Funzione per formattare le date da YYYY-MM-DD a gg-mm-aaaa
 function formatDate(dateString) {
   if (!dateString) return '';
   const date = new Date(dateString);

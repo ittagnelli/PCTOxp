@@ -101,12 +101,12 @@ body {
 .pcto-item {
   display: grid;
   grid-template-rows: repeat(4, auto);
-  grid-template-columns: 2fr minmax(1fr, 2.5fr) minmax(1fr, 2.5fr);
+  grid-template-columns: 2fr /* minmax(1fr, 2fr) minmax(1fr, 2fr) */  1fr 1fr;
   grid-template-areas:
     "title title start end"
     "desc desc start end"
-    "desc desc . button"
-    "studenti studenti . button";
+    "desc desc button button"
+    "studenti studenti button button";
   gap: 10px;
   background: transparent;
   border: 1px solid #ccc;
