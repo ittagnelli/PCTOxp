@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['email'])) {
-    header("Location: ../../login/index-login.html");
+    header("Location: ../../login/index-login.php");
     exit;
 }
 

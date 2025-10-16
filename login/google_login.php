@@ -1,7 +1,9 @@
 <?php
-header("Access-Control-Allow-Origin: http://localhost");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header('Cross-Origin-Opener-Policy: same-origin-allow-popups');
+header('Cross-Origin-Embedder-Policy: unsafe-none');
+
+header('Access-Control-Allow-Origin: *');
+header('X-Frame-Options: SAMEORIGIN');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -30,12 +32,14 @@ if (empty($credential)) {
 }
 
 try {
+    error_log("Q1");
     require_once '../vendor/autoload.php';
     
     $client_id = '888476805039-939mpjj3ant15063om190354dhotu1hh.apps.googleusercontent.com';
-    $client = new Google\Client();
+    $client = new GoogleClient();
     $client->setClientId($client_id);
-    $client->setHttpClient(new GuzzleHttp\Client(['verify' => false]));
+    $client->setHttpClient(http: new GuzzleHttpClient(['verify' => false]));
+    error_log("Q2");
     
     $payload = $client->verifyIdToken($credential);
 
@@ -53,12 +57,15 @@ try {
             exit();
         }
 
-        $stmt = $conn->prepare("SELECT id, nome, cognome, ruolo FROM utenti WHERE email = ?");
+        echo json_encode(['success' => true, 'redirect' => 'pippo']);
+
+
+       /*  $stmt = $conn->prepare("SELECT id, nome, cognome, ruolo FROM utenti WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
-
-        if ($result->num_rows === 1) {
+ */
+        /* if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nome'] = $user['nome'];
@@ -97,7 +104,7 @@ try {
                 echo json_encode(['success' => false, 'error' => 'Errore registrazione utente']);
             }
             $insert_stmt->close();
-        }
+        } */
     } else {
         echo json_encode(['success' => false, 'error' => 'Token Google non valido']);
     }

@@ -44,11 +44,11 @@ if ($result->num_rows === 1) {
             exit;
         }
     } else {
-        echo "<script>alert('Email o password non validi.'); window.location.href='./index-login.html';</script>";
+        echo "<script>alert('Email o password non validi.'); window.location.href='./index-login.php';</script>";
         exit();
     }
 } else {
-    echo "<script>alert('Email o password non validi.'); window.location.href='./index-login.html';</script>";
+    echo "<script>alert('Email o password non validi.'); window.location.href='./index-login.php';</script>";
     exit();
 }
 
