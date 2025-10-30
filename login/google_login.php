@@ -5,6 +5,9 @@ header('Cross-Origin-Embedder-Policy: unsafe-none');
 header('Access-Control-Allow-Origin: *');
 header('X-Frame-Options: SAMEORIGIN');
 
+use Google\Client;
+use GuzzleHttp\Client as GuzzleHttpClient;
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
@@ -33,10 +36,10 @@ if (empty($credential)) {
 
 try {
     error_log("Q1");
-    require_once '../vendor/autoload.php';
+    require_once './vendor/autoload.php';
     
     $client_id = '888476805039-939mpjj3ant15063om190354dhotu1hh.apps.googleusercontent.com';
-    $client = new GoogleClient();
+    $client = new Client();    
     $client->setClientId($client_id);
     $client->setHttpClient(http: new GuzzleHttpClient(['verify' => false]));
     error_log("Q2");
