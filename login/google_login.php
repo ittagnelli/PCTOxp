@@ -60,16 +60,16 @@ try {
             echo json_encode(['success' => false, 'error' => 'Accesso consentito solo con email @istitutoagnelli.it']);
             exit();
         }
+/* 
+        echo json_encode(['success' => true, 'redirect' => '']);
 
-        echo json_encode(['success' => true, 'redirect' => 'pippo']);
-
-
-       /*  $stmt = $conn->prepare("SELECT id, nome, cognome, ruolo FROM utenti WHERE email = ?");
+ */
+        $stmt = $conn->prepare("SELECT id, nome, cognome, ruolo FROM utenti WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
- */
-        /* if ($result->num_rows === 1) {
+ 
+         if ($result->num_rows === 1) {
             $user = $result->fetch_assoc();
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nome'] = $user['nome'];
@@ -108,7 +108,7 @@ try {
                 echo json_encode(['success' => false, 'error' => 'Errore registrazione utente']);
             }
             $insert_stmt->close();
-        } */
+        }
     } else {
         echo json_encode(['success' => false, 'error' => 'Token Google non valido']);
     }
