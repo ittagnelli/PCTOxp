@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     <div class="login-container">
       <div class="logo">
         <img
-          src="../aggiunta pcto/assets/logo/logo_PCTOxp.png"
+          src="../aggiunta_pcto/assets/logo/logo_PCTOxp.png"
           alt="Logo PCTOxp"
         />
       </div>

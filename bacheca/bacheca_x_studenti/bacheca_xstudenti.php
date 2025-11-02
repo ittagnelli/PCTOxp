@@ -23,7 +23,7 @@ $stmt->close();
 $conn->close();
 
 if (empty($utente['Img_profilo'])) {
-    $utente['Img_profilo'] = '../../aggiunta pcto/assets/logo/blue-profile-icon-free-png.webp';
+    $utente['Img_profilo'] = '../../aggiunta_pcto/assets/logo/blue-profile-icon-free-png.webp';
 }
 ?>
 <!DOCTYPE html>
@@ -44,7 +44,7 @@ if (empty($utente['Img_profilo'])) {
         id="img-profilo"
         src="<?php echo htmlspecialchars($utente['Img_profilo']); ?>"
         alt="Immagine profilo di <?php echo htmlspecialchars($utente['Nome'] . ' ' . $utente['Cognome']); ?>"
-        onerror="this.src='../../aggiunta pcto/assets/logo/blue-profile-icon-free-png.webp'; this.onerror=null;"
+        onerror="this.src='../../aggiunta_pcto/assets/logo/blue-profile-icon-free-png.webp'; this.onerror=null;"
         loading="lazy"
       />
       <h3 id="h3"><?php echo htmlspecialchars($utente['Nome'] . " " . $utente['Cognome']); ?></h3>

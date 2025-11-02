@@ -22,7 +22,7 @@ $stmt->close();
 $conn->close();
 
 if (empty($utente['Img_profilo'])) {
-    $utente['Img_profilo'] = '../../aggiunta pcto/assets/logo/blue-profile-icon-free-png.webp';
+    $utente['Img_profilo'] = '../../aggiunta_pcto/assets/logo/blue-profile-icon-free-png.webp';
 }
 ?>
 <!DOCTYPE html>
@@ -43,7 +43,7 @@ if (empty($utente['Img_profilo'])) {
         id="img-profilo"
         src="<?php echo htmlspecialchars($utente['Img_profilo']); ?>"
         alt="Immagine profilo di <?php echo htmlspecialchars($utente['Nome'] . ' ' . $utente['Cognome']); ?>"
-        onerror="this.src='../../aggiunta pcto/assets/logo/blue-profile-icon-free-png.webp'; this.onerror=null;"
+        onerror="this.src='../../aggiunta_pcto/assets/logo/blue-profile-icon-free-png.webp'; this.onerror=null;"
         loading="lazy"
       />
       <h3 id="h3"><?php echo htmlspecialchars($utente['Nome'] . " " . $utente['Cognome']); ?></h3>
@@ -52,7 +52,7 @@ if (empty($utente['Img_profilo'])) {
           <span class="material-icons icon">view_timeline</span>
           <span class="text">Bacheca</span>
         </div>
-        <div class="nav-element" onclick="window.location.href='../../aggiunta pcto/index_add_pcto.php'">
+        <div class="nav-element" onclick="window.location.href='../../aggiunta_pcto/index_add_pcto.php'">
           <span class="material-icons icon">add</span>
           <span class="text">Aggiungi PCTO</span>
         </div>

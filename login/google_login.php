@@ -84,7 +84,7 @@ try {
             $update_stmt->execute();
             $update_stmt->close();
 
-            $redirect_url = ($user['ruolo'] === 'operatore') ? '../bacheca/bacheca x docenti/bacheca_xdocenti.php' : '../bacheca/bacheca x studenti/bacheca_xstudenti.php';
+            $redirect_url = ($user['ruolo'] === 'operatore') ? '../bacheca/bacheca_x_docenti/bacheca_xdocenti.php' : '../bacheca/bacheca_x_studenti/bacheca_xstudenti.php';
             echo json_encode(['success' => true, 'redirect' => $redirect_url]);
 
         } else {
@@ -102,7 +102,7 @@ try {
                 $_SESSION['email'] = $email;
                 $_SESSION['logged_in'] = true;
 
-                $redirect_url = ($default_ruolo === 'operatore') ? '../bacheca/bacheca x docenti/bacheca_xdocenti.php' : '../bacheca/bacheca x studenti/bacheca_xstudenti.php';
+                $redirect_url = ($default_ruolo === 'operatore') ? '../bacheca/bacheca_x_docenti/bacheca_xdocenti.php' : '../bacheca/bacheca_x_studenti/bacheca_xstudenti.php';
                 echo json_encode(['success' => true, 'redirect' => $redirect_url]);
             } else {
                 echo json_encode(['success' => false, 'error' => 'Errore registrazione utente']);

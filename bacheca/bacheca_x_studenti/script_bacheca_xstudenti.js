@@ -16,7 +16,7 @@ function loadBacheca() {
       if (data.success) {
         userIscrizioni = data.iscrizioni;
       }
-      return fetch("../../aggiunta pcto/database/get_pcto.php");
+      return fetch("../../aggiunta_pcto/database/get_pcto.php");
     })
     .then((res) => {
       if (!res.ok) {

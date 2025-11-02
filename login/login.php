@@ -37,10 +37,10 @@ if ($result->num_rows === 1) {
         $_SESSION['logged_in'] = true;
 
         if ($user['ruolo'] === 'operatore') {
-            header("Location: ../bacheca/bacheca x docenti/bacheca_xdocenti.php");
+            header("Location: ../bacheca/bacheca_x_docenti/bacheca_xdocenti.php");
             exit;
         } else {
-            header("Location: ../bacheca/bacheca x studenti/bacheca_xstudenti.php");
+            header("Location: ../bacheca/bacheca_x_studenti/bacheca_xstudenti.php");
             exit;
         }
     } else {

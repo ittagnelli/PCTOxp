@@ -9,7 +9,7 @@ function formatDate(dateString) {
 }
 
 function loadBacheca() {
-  fetch("../../aggiunta pcto/database/get_pcto.php")
+  fetch("../../aggiunta_pcto/database/get_pcto.php")
     .then((res) => {
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);

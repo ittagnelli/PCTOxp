@@ -10,7 +10,7 @@ function formatDate(dateString) {
 
 function loadBacheca() {
   Promise.all([
-    fetch("../../aggiunta pcto/database/get_pcto.php").then((res) =>
+    fetch("../../aggiunta_pcto/database/get_pcto.php").then((res) =>
       res.json()
     ),
     fetch("../get_studenti_iscritti.php").then((res) => res.json()),
