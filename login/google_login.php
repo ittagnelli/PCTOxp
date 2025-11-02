@@ -46,6 +46,7 @@ try {
     
     $payload = $client->verifyIdToken($credential);
 
+    error_log("Q3");
     if ($payload) {
         $google_id = $payload['sub'];
         $email = $payload['email'];
