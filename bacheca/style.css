@@ -101,7 +101,7 @@ body {
 .pcto-item {
   display: grid;
   grid-template-rows: repeat(4, auto);
-  grid-template-columns: 2fr /* minmax(1fr, 2fr) minmax(1fr, 2fr) */  1fr 1fr;
+  grid-template-columns: 2fr /* minmax(1fr, 2fr) minmax(1fr, 2fr) */ 1fr 1fr;
   grid-template-areas:
     "title title start end"
     "desc desc start end"

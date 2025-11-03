@@ -36,6 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
       <div
         class="g_id_signin singin-google"
+        style="display: flex; justify-content: center;"
         data-type="standard"
         data-size="large"
         data-theme="outline"
