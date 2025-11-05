@@ -261,6 +261,26 @@ body {
   }
 }
 
+.pctobtn-del {
+  grid-area: button;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  
+}
+
+.delPCTO {
+  width: 150px;
+  height: 35px;
+  background-color: rgb(255, 175, 175);
+  color: #000;
+  border: solid #ff0000 1px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+}
+
 @media screen and (max-width: 1024px) {
   body {
     grid-template-columns: 200px 1fr;

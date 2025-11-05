@@ -1,9 +1,9 @@
 // Funzione per formattare le date da YYYY-MM-DD a gg-mm-aaaa
 function formatDate(dateString) {
-  if (!dateString) return '';
+  if (!dateString) return "";
   const date = new Date(dateString);
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
   return `${day}-${month}-${year}`;
 }
@@ -71,6 +71,11 @@ function loadBacheca() {
           <span class="pcto-start">${formatDate(pcto.start_date)}</span>
           <span class="pcto-end">${formatDate(pcto.end_date)}</span>
           ${studentiHtml}
+          <span class="pctobtn-del">
+            <button onclick="delPCTO(${
+              pcto.id
+            })" class="delPCTO">Elimina PCTO</button>
+          </span>
         `;
         box.appendChild(div);
       });
@@ -83,37 +88,66 @@ function loadBacheca() {
     });
 }
 
-
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
   loadBacheca();
-  
-  const imgProfilo = document.getElementById('img-profilo');
+
+  const imgProfilo = document.getElementById("img-profilo");
   if (imgProfilo) {
     let imageLoaded = false;
-    
-    imgProfilo.addEventListener('load', function() {
+
+    imgProfilo.addEventListener("load", function () {
       if (!imageLoaded) {
-        this.style.opacity = '1';
+        this.style.opacity = "1";
         imageLoaded = true;
       }
     });
-    
-    imgProfilo.addEventListener('error', function() {
-      console.warn('Errore caricamento immagine profilo, usando fallback');
+
+    imgProfilo.addEventListener("error", function () {
+      console.warn("Errore caricamento immagine profilo, usando fallback");
       if (!imageLoaded) {
-        this.style.opacity = '1';
+        this.style.opacity = "1";
         imageLoaded = true;
       }
     });
-    
-    imgProfilo.style.opacity = '0.8';
-    imgProfilo.style.transition = 'opacity 0.3s ease';
-    
+
+    imgProfilo.style.opacity = "0.8";
+    imgProfilo.style.transition = "opacity 0.3s ease";
+
     setTimeout(() => {
       if (!imageLoaded) {
-        imgProfilo.style.opacity = '1';
+        imgProfilo.style.opacity = "1";
         imageLoaded = true;
       }
     }, 1500);
   }
 });
+
+function delPCTO(pctoId) {
+  if (!confirm("Sei sicuro di voler eliminare questo PCTO?")) {
+    return;
+  }
+
+  fetch("../manage_iscrizioni.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      pcto_id: pctoId,
+      elimina: true,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      if (data.success) {
+        alert("PCTO eliminato con successo.");
+        loadBacheca();
+      } else {
+        alert("Errore durante l'eliminazione del PCTO: " + (data.error || ""));
+      }
+    })
+    .catch((error) => {
+      console.error("Errore durante la richiesta di eliminazione:", error);
+      alert("Errore di rete durante l'eliminazione del PCTO.");
+    });
+}

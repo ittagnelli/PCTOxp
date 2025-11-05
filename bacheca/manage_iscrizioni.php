@@ -36,8 +36,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     
-    $pcto_id = intval($input['pcto_id']);
-    $action = isset($input['action']) ? $input['action'] : 'iscriviti';
+    $pcto_id = isset($input['pcto_id']) ? intval($input['pcto_id']) : null;
+    $action  = isset($input['action']) ? $input['action'] : null;
+    $elimina = isset($input['elimina']) ? intval($input['elimina']) : null;
     
     if ($action === 'iscriviti') {
         $stmt = $conn->prepare("INSERT INTO iscrizioni (studente_id, pcto_id) VALUES (?, ?)");
@@ -62,6 +63,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['success' => false, 'error' => 'Errore durante la disiscrizione']);
         }
     }
+
+    if ($elimina !== null) {
+        $stmt = $conn->prepare("DELETE FROM pcto WHERE id = ?");
+        $stmt->bind_param("i", $pcto_id);
+        if ($stmt->execute()) {
+            echo json_encode(['success' => true, 'message' => 'PCTO eliminato con successo']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Errore durante l\'eliminazione del PCTO']);
+        }
+    }
+
     
     $stmt->close();
 }
