@@ -7,14 +7,15 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./www:/var/www/html
+      - ./:/var/www/html
+      - ./apache/vhost.conf:/etc/apache2/sites-available/000-default.conf
     depends_on:
       - db
     environment:
-      - MYSQL_HOST=db
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=root
-      - MYSQL_DATABASE=pctoxp_db
+      MYSQL_HOST: db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_DATABASE: pctoxp_db
 
   db:
     image: mysql:8.0
@@ -23,6 +24,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: pctoxp_db
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
 
