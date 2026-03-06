@@ -1,16 +1,6 @@
 <?php
 header("Content-Type: application/json");
-
-$host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "pcto_db";
-
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    echo json_encode(["success" => false, "error" => "Connessione fallita: " . $conn->connect_error]);
-    exit;
-}
+require_once '../../db.php';
 
 $title = $_POST["title"] ?? "";
 $desc  = $_POST["desc"] ?? "";
@@ -22,15 +12,16 @@ if (!$title || !$desc || !$start || !$end) {
     exit;
 }
 
-$stmt = $conn->prepare("INSERT INTO pcto (title, description, start_date, end_date) VALUES (?, ?, ?, ?)");
-$stmt->bind_param("ssss", $title, $desc, $start, $end);
-
-if ($stmt->execute()) {
-    $conn->query("DELETE FROM pcto WHERE created_at < (NOW() - INTERVAL 1 YEAR)");
-    echo json_encode(["success" => true, "id" => $stmt->insert_id]);
-} else {
-    echo json_encode(["success" => false, "error" => $stmt->error]);
+try {
+    $stmt = $pdo->prepare("INSERT INTO pcto (title, description, start_date, end_date) VALUES (?, ?, ?, ?)");
+    if ($stmt->execute([$title, $desc, $start, $end])) {
+        // SQLite date deletion: datetime('now', '-1 year')
+        $pdo->exec("DELETE FROM pcto WHERE created_at < datetime('now', '-1 year')");
+        echo json_encode(["success" => true, "id" => $pdo->lastInsertId()]);
+    } else {
+        echo json_encode(["success" => false, "error" => "Errore durante l'inserimento"]);
+    }
+} catch (PDOException $e) {
+    echo json_encode(["success" => false, "error" => $e->getMessage()]);
 }
-
-$stmt->close();
-$conn->close();
+?>

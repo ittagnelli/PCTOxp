@@ -1,33 +1,21 @@
 <?php
 session_start();
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "pcto_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
+require_once '../db.php';
 
 $email = $_POST['email'] ?? '';
 $pwd = $_POST['password'] ?? '';
 
 if (empty($email) || empty($pwd)) {
-    header("Location: index-login.html?error=Per favore, inserisci email e password.");
+    echo "<script>alert('Per favore, inserisci email e password.'); window.location.href='./index-login.php';</script>";
     exit();
 }
 
-$stmt = $conn->prepare("SELECT id, nome, cognome, password, ruolo FROM utenti WHERE email = ?");
-$stmt->bind_param("s", $email);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt = $pdo->prepare("SELECT id, Nome as nome, Cognome as cognome, Password as password, Ruolo as ruolo FROM utenti WHERE Email = ?");
+$stmt->execute([$email]);
+$user = $stmt->fetch();
 
-if ($result->num_rows === 1) {
-    $user = $result->fetch_assoc();
-
+if ($user) {
     if (password_verify($pwd, $user['password'])) {
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_nome'] = $user['nome'];
@@ -51,7 +39,4 @@ if ($result->num_rows === 1) {
     echo "<script>alert('Email o password non validi.'); window.location.href='./index-login.php';</script>";
     exit();
 }
-
-$stmt->close();
-$conn->close();
 ?>

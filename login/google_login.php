@@ -15,17 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 session_start();
 header('Content-Type: application/json');
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "pcto_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'error' => 'Errore database']);
-    exit();
-}
+require_once '../db.php';
 
 $credential = $_POST['credential'] ?? '';
 
@@ -35,22 +25,16 @@ if (empty($credential)) {
 }
 
 try {
-    error_log("Q1");
     require_once './vendor/autoload.php';
-    error_log("Q2");
     $client_id = '888476805039-939mpjj3ant15063om190354dhotu1hh.apps.googleusercontent.com';
-    /* $client = new Client();   */  
     $client = new Google_Client(['client_id' => $client_id]);
     $client->setClientId($client_id);
-    $client->setHttpClient(http: new GuzzleHttpClient(['verify' => false]));
-    error_log("Q3");
+    $client->setHttpClient(new GuzzleHttpClient(['verify' => false]));
+    
     $payload = $client->verifyIdToken($credential);
-    error_log("Q4");
+    
     if ($payload) {
-        $google_id = $payload['sub'];
         $email = $payload['email'];
-        $nome = $payload['given_name'] ?? '';
-        $cognome = $payload['family_name'] ?? '';
         $img_profilo = $payload['picture'] ?? null;
 
         $domain = '@istitutoagnelli.it';
@@ -59,17 +43,12 @@ try {
             echo json_encode(['success' => false, 'error' => 'Accesso consentito solo con email @istitutoagnelli.it']);
             exit();
         }
-/* 
-        echo json_encode(['success' => true, 'redirect' => '']);
 
- */
-        $stmt = $conn->prepare("SELECT id, nome, cognome, ruolo FROM utenti WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
+        $stmt = $pdo->prepare("SELECT id, Nome as nome, Cognome as cognome, Ruolo as ruolo FROM utenti WHERE Email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
  
-         if ($result->num_rows === 1) {
-            $user = $result->fetch_assoc();
+         if ($user) {
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_nome'] = $user['nome'];
             $_SESSION['user_cognome'] = $user['cognome'];
@@ -77,43 +56,20 @@ try {
             $_SESSION['email'] = $email;
             $_SESSION['logged_in'] = true;
 
-            error_log("Updating profile image: " . $img_profilo . " for user ID: " . $user['id']);
-            $update_stmt = $conn->prepare("UPDATE utenti SET Img_profilo = ? WHERE id = ?");
-            $update_stmt->bind_param("si", $img_profilo, $user['id']);
-            $update_stmt->execute();
-            $update_stmt->close();
+            $update_stmt = $pdo->prepare("UPDATE utenti SET Img_profilo = ? WHERE id = ?");
+            $update_stmt->execute([$img_profilo, $user['id']]);
 
             $redirect_url = ($user['ruolo'] === 'operatore') ? '../bacheca/bacheca_x_docenti/bacheca_xdocenti.php' : '../bacheca/bacheca_x_studenti/bacheca_xstudenti.php';
             echo json_encode(['success' => true, 'redirect' => $redirect_url]);
 
         } else {
-            $default_ruolo = 'utente';
-            $password_placeholder = password_hash(uniqid(rand(), true), PASSWORD_DEFAULT);
-
-            $insert_stmt = $conn->prepare("INSERT INTO utenti (nome, cognome, email, password, ruolo, Img_profilo) VALUES (?, ?, ?, ?, ?, ?)");
-            $insert_stmt->bind_param("ssssss", $nome, $cognome, $email, $password_placeholder, $default_ruolo, $img_profilo);
-
-            if ($insert_stmt->execute()) {
-                $_SESSION['user_id'] = $insert_stmt->insert_id;
-                $_SESSION['user_nome'] = $nome;
-                $_SESSION['user_cognome'] = $cognome;
-                $_SESSION['user_ruolo'] = $default_ruolo;
-                $_SESSION['email'] = $email;
-                $_SESSION['logged_in'] = true;
-
-                $redirect_url = ($default_ruolo === 'operatore') ? '../bacheca/bacheca_x_docenti/bacheca_xdocenti.php' : '../bacheca/bacheca_x_studenti/bacheca_xstudenti.php';
-                echo json_encode(['success' => true, 'redirect' => $redirect_url]);
-            } else {
-                echo json_encode(['success' => false, 'error' => 'Errore registrazione utente']);
-            }
-            $insert_stmt->close();
+            // Restriction: Only save teachers/users already in DB
+            echo json_encode(['success' => false, 'error' => 'Accesso non autorizzato. Solo i docenti registrati possono accedere.']);
         }
     } else {
         echo json_encode(['success' => false, 'error' => 'Token Google non valido']);
     }
 } catch (Exception $e) {
-    echo json_encode(['success' => false, 'error' => 'Errore verifica token Google']);
+    echo json_encode(['success' => false, 'error' => 'Errore verifica token Google: ' . $e->getMessage()]);
 }
-
-$conn->close();
 ?>

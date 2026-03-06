@@ -6,20 +6,11 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
-$conn = new mysqli("localhost", "root", "", "pcto_db");
-if ($conn->connect_error) {
-    die("Connessione fallita: " . $conn->connect_error);
-}
-
 $email = $_SESSION['email'];
-$stmt = $conn->prepare("SELECT Nome, Cognome, Img_profilo FROM utenti WHERE Email = ?");
-$stmt->bind_param("s", $email);
-$stmt->execute();
-$result = $stmt->get_result();
-$utente = $result->fetch_assoc();
-
-$stmt->close();
-$conn->close();
+require_once '../../db.php';
+$stmt = $pdo->prepare("SELECT Nome, Cognome, Img_profilo FROM utenti WHERE Email = ?");
+$stmt->execute([$email]);
+$utente = $stmt->fetch();
 
 if (empty($utente['Img_profilo'])) {
     $utente['Img_profilo'] = '../../aggiunta_pcto/assets/logo/blue-profile-icon-free-png.webp';
