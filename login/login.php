@@ -11,9 +11,16 @@ if (empty($email) || empty($pwd)) {
     exit();
 }
 
-$stmt = $pdo->prepare("SELECT id, Nome as nome, Cognome as cognome, Password as password, Ruolo as ruolo FROM utenti WHERE Email = ?");
-$stmt->execute([$email]);
-$user = $stmt->fetch();
+require_once '../docenti.php';
+
+if (isset($docenti_autorizzati[$email])) {
+    echo "<script>alert('I docenti devono accedere esclusivamente tramite il pulsante \"Accedi con Google\".'); window.location.href='./index-login.php';</script>";
+    exit();
+} else {
+    $stmt = $pdo->prepare("SELECT id, Nome as nome, Cognome as cognome, Password as password, Ruolo as ruolo FROM utenti WHERE Email = ? AND Ruolo = 'utente'");
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
+}
 
 if ($user) {
     if (password_verify($pwd, $user['password'])) {

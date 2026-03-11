@@ -7,11 +7,20 @@ if (!isset($_SESSION['email'])) {
 }
 
 require_once '../db.php';
+require_once '../docenti.php';
 
 $email = $_SESSION['email'];
-$stmt = $pdo->prepare("SELECT Nome, Cognome, Img_profilo FROM utenti WHERE Email = ?");
-$stmt->execute([$email]);
-$utente = $stmt->fetch();
+if (isset($docenti_autorizzati[$email])) {
+    $utente = [
+        'Nome' => $docenti_autorizzati[$email]['nome'],
+        'Cognome' => $docenti_autorizzati[$email]['cognome'],
+        'Img_profilo' => $docenti_autorizzati[$email]['Img_profilo']
+    ];
+} else {
+    $stmt = $pdo->prepare("SELECT Nome, Cognome, Img_profilo FROM utenti WHERE Email = ?");
+    $stmt->execute([$email]);
+    $utente = $stmt->fetch();
+}
 
 if (empty($utente['Img_profilo'])) {
     $utente['Img_profilo'] = './assets/logo/blue-profile-icon-free-png.webp';

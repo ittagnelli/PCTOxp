@@ -37,8 +37,25 @@ Sistema di gestione PCTO.
    ```
 3. Configura il file `db.php` o le variabili d'ambiente.
 
+## Configurazione Docenti
+
+I docenti non vengono salvati nel database. Per aggiungere o rimuovere docenti, è necessario modificare il dizionario nel file `docenti.php`.
+L'accesso per i docenti è consentito **esclusivamente** tramite il pulsante "Accedi con Google". L'email Google utilizzata per l'accesso deve corrispondere a una di quelle presenti in `docenti.php`.
+
+Esempio di aggiunta in `docenti.php`:
+```php
+$docenti_autorizzati = [
+    'docente@istitutoagnelli.it' => [
+        'nome' => 'NomeDocente',
+        'cognome' => 'CognomeDocente',
+        'Img_profilo' => ''
+    ]
+];
+```
+
 ## Struttura del Progetto
 
+- `docenti.php`: Array di configurazione per i docenti autorizzati
 - `login/`: Gestione autenticazione (Google Login)
 - `bacheca/`: Visualizzazione annunci
 - `aggiunta_pcto/`: Inserimento nuovi percorsi

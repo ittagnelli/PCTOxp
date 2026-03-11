@@ -44,9 +44,20 @@ try {
             exit();
         }
 
-        $stmt = $pdo->prepare("SELECT id, Nome as nome, Cognome as cognome, Ruolo as ruolo FROM utenti WHERE Email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
+        require_once '../docenti.php';
+
+        if (isset($docenti_autorizzati[$email])) {
+            $user = [
+                'id' => -1,
+                'nome' => $docenti_autorizzati[$email]['nome'],
+                'cognome' => $docenti_autorizzati[$email]['cognome'],
+                'ruolo' => 'operatore'
+            ];
+        } else {
+            $stmt = $pdo->prepare("SELECT id, Nome as nome, Cognome as cognome, Ruolo as ruolo FROM utenti WHERE Email = ? AND Ruolo = 'utente'");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+        }
  
          if ($user) {
             $_SESSION['user_id'] = $user['id'];
@@ -56,8 +67,10 @@ try {
             $_SESSION['email'] = $email;
             $_SESSION['logged_in'] = true;
 
-            $update_stmt = $pdo->prepare("UPDATE utenti SET Img_profilo = ? WHERE id = ?");
-            $update_stmt->execute([$img_profilo, $user['id']]);
+            if (!isset($docenti_autorizzati[$email])) {
+                $update_stmt = $pdo->prepare("UPDATE utenti SET Img_profilo = ? WHERE id = ?");
+                $update_stmt->execute([$img_profilo, $user['id']]);
+            }
 
             $redirect_url = ($user['ruolo'] === 'operatore') ? '../bacheca/bacheca_x_docenti/bacheca_xdocenti.php' : '../bacheca/bacheca_x_studenti/bacheca_xstudenti.php';
             echo json_encode(['success' => true, 'redirect' => $redirect_url]);

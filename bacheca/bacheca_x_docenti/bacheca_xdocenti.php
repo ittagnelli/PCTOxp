@@ -8,9 +8,19 @@ if (!isset($_SESSION['email'])) {
 
 $email = $_SESSION['email'];
 require_once '../../db.php';
-$stmt = $pdo->prepare("SELECT Nome, Cognome, Img_profilo FROM utenti WHERE Email = ?");
-$stmt->execute([$email]);
-$utente = $stmt->fetch();
+require_once '../../docenti.php';
+
+if (isset($docenti_autorizzati[$email])) {
+    $utente = [
+        'Nome' => $docenti_autorizzati[$email]['nome'],
+        'Cognome' => $docenti_autorizzati[$email]['cognome'],
+        'Img_profilo' => $docenti_autorizzati[$email]['Img_profilo']
+    ];
+} else {
+    $stmt = $pdo->prepare("SELECT Nome, Cognome, Img_profilo FROM utenti WHERE Email = ?");
+    $stmt->execute([$email]);
+    $utente = $stmt->fetch();
+}
 
 if (empty($utente['Img_profilo'])) {
     $utente['Img_profilo'] = '../../aggiunta_pcto/assets/logo/blue-profile-icon-free-png.webp';
