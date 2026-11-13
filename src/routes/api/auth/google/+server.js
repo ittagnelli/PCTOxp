@@ -1,81 +1,67 @@
 import { json } from '@sveltejs/kit';
-import { upsertGoogleProfile, createSession, validateSchoolEmail } from '$lib/server/db.js';
+import { env } from '$env/dynamic/private';
+import { upsertGoogleProfile, createSession } from '$lib/server/db.js';
 
-function decodeJwtPayload(token) {
+const GOOGLE_ISSUERS = new Set(['accounts.google.com', 'https://accounts.google.com']);
+
+/**
+ * Verifica l'ID token presso Google (firma e scadenza) e controlla che sia stato
+ * emesso per la nostra applicazione e per un'email verificata.
+ * Restituisce il payload oppure null: non si usa MAI il token senza verifica.
+ */
+async function verifyGoogleIdToken(idToken, clientId) {
+  let res;
   try {
-    const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    const payload = Buffer.from(parts[1], 'base64url').toString('utf-8');
-    return JSON.parse(payload);
+    res = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?${new URLSearchParams({ id_token: idToken })}`
+    );
   } catch {
     return null;
   }
+  if (!res.ok) return null;
+
+  const payload = await res.json().catch(() => null);
+  if (!payload) return null;
+  if (payload.aud !== clientId) return null;
+  if (!GOOGLE_ISSUERS.has(payload.iss)) return null;
+  if (payload.email_verified !== true && payload.email_verified !== 'true') return null;
+  if (!(Number(payload.exp) * 1000 > Date.now())) return null;
+  if (typeof payload.email !== 'string' || !payload.email) return null;
+
+  return payload;
 }
 
 export const POST = async ({ request }) => {
-  const body = await request.json().catch(() => null);
-
-  if (!body) {
-    return json({ success: false, error: 'Richiesta non valida.' }, { status: 400 });
+  const clientId = env.GOOGLE_CLIENT_ID || env.VITE_GOOGLE_CLIENT_ID;
+  if (!clientId) {
+    console.error('GOOGLE_CLIENT_ID / VITE_GOOGLE_CLIENT_ID non configurato.');
+    return json({ success: false, error: 'Login Google non configurato sul server.' }, { status: 500 });
   }
 
-  let email = '';
-  let nome = '';
-  let cognome = '';
-  let img_profilo = null;
+  const body = await request.json().catch(() => null);
+  const credential = body?.credential;
 
-  if (body.credential) {
-    let payload = decodeJwtPayload(body.credential);
-
-    try {
-      const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${body.credential}`);
-      if (verifyRes.ok) {
-        payload = await verifyRes.json();
-      }
-    } catch (e) {
-    }
-
-    if (!payload?.email) {
-      return json({ success: false, error: 'Token Google non valido.' }, { status: 401 });
-    }
-
-    email = String(payload.email);
-    nome = String(payload.given_name ?? payload.name ?? '');
-    cognome = String(payload.family_name ?? '');
-
-    const picture = payload.picture ?? payload.avatar_url ?? payload.photo;
-    img_profilo = picture ? String(picture) : null;
-  } else if (body.email) {
-    email = String(body.email).trim();
-    nome = String(body.nome ?? '').trim();
-    cognome = String(body.cognome ?? '').trim();
-    img_profilo = body.img_profilo ? String(body.img_profilo) : null;
-  } else {
+  if (typeof credential !== 'string' || !credential || credential.length > 4096) {
     return json({ success: false, error: 'Dati di accesso mancanti.' }, { status: 400 });
   }
 
-  const schoolCheck = validateSchoolEmail(email);
-  if (!schoolCheck.valid) {
-    return json({ success: false, error: schoolCheck.error }, { status: 403 });
+  const payload = await verifyGoogleIdToken(credential, clientId);
+  if (!payload) {
+    return json({ success: false, error: 'Token Google non valido.' }, { status: 401 });
   }
 
   try {
     const profile = upsertGoogleProfile({
-      email,
-      nome: nome || schoolCheck.nome,
-      cognome: cognome || schoolCheck.cognome,
-      img_profilo
+      email: payload.email,
+      nome: payload.given_name ?? '',
+      cognome: payload.family_name ?? '',
+      img_profilo: typeof payload.picture === 'string' ? payload.picture : null
     });
 
-    const token = createSession(profile.id);
-
-    return json({
-      success: true,
-      token,
-      profile
-    });
+    const token = createSession(profile.email);
+    return json({ success: true, token, profile });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Errore durante la registrazione del profilo.';
-    return json({ success: false, error: message }, { status: 400 });
+    return json({ success: false, error: message }, { status: 403 });
   }
 };

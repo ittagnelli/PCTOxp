@@ -55,6 +55,13 @@
       </span>
     {/if}
 
+    {#if pcto.ore}
+      <span class="meta-entry">
+        <span class="material-icons meta-icon">hourglass_bottom</span>
+        Ore: <strong>{pcto.ore}</strong>
+      </span>
+    {/if}
+
     <span class="meta-entry">
       <span class="material-icons meta-icon">person</span>
       Docente: <strong>{docenteReferente}</strong>

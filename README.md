@@ -1,66 +1,81 @@
 # PCTOxp
 
-Sistema di gestione PCTO.
+Sistema di gestione PCTO dell'Istituto Agnelli (SvelteKit + SQLite).
+
+- **Studenti**: vedono i PCTO e si iscrivono (massimo 5 PCTO, nel limite dei posti disponibili).
+- **Docenti**: pubblicano i PCTO, vedono gli iscritti ai propri PCTO e li possono eliminare.
 
 ## Requisiti
 
--Svelte e SvelteKit
+- Node.js 20 o superiore
+- `sqlite3` (solo per gestire a mano la tabella dei docenti)
+- Un Client ID OAuth di Google
 
 ## Installazione
-1.Installa SQLite se non lo hai già installato.
 
-    ```bash
-    sqlite3 --version
-    sudo apt-get install sqlite3
-    ```
-
-2. Clona il repository:
+1. Clona il repository e installa le dipendenze:
 
    ```bash
    git clone https://github.com/gabboshot/PCTOxp.git
    cd PCTOxp
+   npm ci
    ```
 
-3. Installa le librerie e fai partire il sito:
+2. Crea il file `.env` partendo da `.env.example` e inserisci il Client ID di Google:
 
    ```bash
-   npm ci
+   cp .env.example .env
+   ```
+
+   Nella Google Cloud Console, tra le *Origini JavaScript autorizzate* del Client ID va
+   aggiunto l'indirizzo da cui si apre il sito (es. `http://localhost:5173` in sviluppo).
+   Google non accetta indirizzi IP di rete locale: per usare il sito da smartphone serve
+   un nome di dominio con HTTPS.
+
+3. Avvia il sito:
+
+   ```bash
    npm run dev
    ```
 
-4. Accedi all'applicazione:
-   - Web: http://localhost:5173
+   e apri http://localhost:5173. Il database `data/pctoxp.db` viene creato al primo avvio.
 
-## Installazione Manuale
+## Accesso
 
-1. Assicurati di avere PHP e un database (MySQL o SQLite) configurati.
-2. Installa le dipendenze di Composer nella cartella login:
-   ```bash
-   cd login
-   composer install
-   ```
-3. Configura il file `db.php` o le variabili d'ambiente.
+L'accesso avviene **solo** con "Accedi con Google" e con un account `@istitutoagnelli.it`.
+Il server verifica il token presso Google (firma, scadenza, Client ID ed email verificata).
 
-## Configurazione Docenti
+Chi accede è uno **studente**, a meno che la sua email sia presente nella tabella `docenti`.
+Gli studenti devono avere un'email nel formato `nome.cognome@istitutoagnelli.it`.
 
-I docenti non vengono salvati nel database. Per aggiungere o rimuovere docenti, è necessario modificare il dizionario nel file `docenti.php`.
-L'accesso per i docenti è consentito **esclusivamente** tramite il pulsante "Accedi con Google". L'email Google utilizzata per l'accesso deve corrispondere a una di quelle presenti in `docenti.php`.
+Le sessioni durano 12 ore e vengono annullate con il logout.
 
-Esempio di aggiunta in `docenti.php`:
-```php
-$docenti_autorizzati = [
-    'docente@istitutoagnelli.it' => [
-        'nome' => 'NomeDocente',
-        'cognome' => 'CognomeDocente',
-        'Img_profilo' => ''
-    ]
-];
+## Gestione dei docenti
+
+I docenti si inseriscono a mano nel database:
+
+```bash
+# aggiungere un docente (nome e cognome sono facoltativi: se vuoti si usano quelli di Google)
+sqlite3 data/pctoxp.db "INSERT INTO docenti (email, nome, cognome) VALUES ('mario.rossi@istitutoagnelli.it', 'Mario', 'Rossi');"
+
+# elencare i docenti
+sqlite3 data/pctoxp.db "SELECT id, email, nome, cognome FROM docenti;"
+
+# rimuovere un docente (ha effetto subito, anche sulle sessioni aperte)
+sqlite3 data/pctoxp.db "DELETE FROM docenti WHERE email = 'mario.rossi@istitutoagnelli.it';"
 ```
 
-## Struttura del Progetto
+In alternativa, al primo avvio con la tabella vuota,
+vengono importate le email elencate in `data/docenti.json` (un array JSON di stringhe).
 
-- `docenti.php`: Array di configurazione per i docenti autorizzati
-- `login/`: Gestione autenticazione (Google Login)
-- `bacheca/`: Visualizzazione annunci
-- `aggiunta_pcto/`: Inserimento nuovi percorsi
-- `apache/`: Configurazione web server
+I PCTO di un docente rimosso restano visibili e possono essere gestiti da qualunque docente.
+
+## Struttura del progetto
+
+- `src/lib/server/db.js`: schema del database, utenti, docenti e sessioni
+- `src/routes/api/`: API (login, PCTO, iscrizioni)
+- `src/routes/bacheca/`: bacheca pubblica, dello studente e del docente
+- `src/routes/aggiunta-pcto/`: inserimento di nuovi PCTO (solo docenti)
+- `src/lib/*.svelte`: componenti (navbar, card PCTO, calendario, pulsante Google)
+
+La cartella `data/` contiene dati personali e non va inserita nel repository.

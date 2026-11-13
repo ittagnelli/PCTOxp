@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Database SQLite e dati locali (contengono dati personali: non vanno nel repository)
+data/

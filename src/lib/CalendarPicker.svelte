@@ -90,13 +90,13 @@
 
 
     <div class="weekdays">
+      <div>L</div>
       <div>M</div>
-      <div>T</div>
-      <div>W</div>
-      <div>T</div>
-      <div>F</div>
+      <div>M</div>
+      <div>G</div>
+      <div>V</div>
       <div>S</div>
-      <div>S</div>
+      <div>D</div>
     </div>
   </div>
 

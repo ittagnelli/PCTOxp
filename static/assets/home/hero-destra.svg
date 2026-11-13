@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 280" role="img" aria-label="Docente che presenta un progetto a una studentessa">
+  <!-- Illustrazione segnaposto: sostituibile con un'illustrazione definitiva -->
+  <defs>
+    <linearGradient id="blobR" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eceef4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sfondo a macchia -->
+  <path d="M30 280 C14 248 34 214 30 186 C26 150 52 122 84 112 C104 64 150 44 196 52 C246 40 296 62 312 110 C330 160 318 206 326 240 C330 258 328 270 326 280 Z" fill="url(#blobR)"/>
+
+  <!-- finestra del browser con ingranaggio e grafico -->
+  <rect x="96" y="12" width="132" height="118" rx="6" fill="#f7f8fb" stroke="#c9ced8" stroke-width="2"/>
+  <rect x="96" y="12" width="132" height="14" rx="6" fill="#dfe2ea"/>
+  <g fill="#9aa0ad"><circle cx="106" cy="19" r="2.4"/><circle cx="114" cy="19" r="2.4"/><circle cx="122" cy="19" r="2.4"/></g>
+  <rect x="106" y="34" width="42" height="38" rx="3" fill="#e9ebf1"/>
+  <g transform="translate(127 53)" fill="#b51f26">
+    <circle r="9"/>
+    <g>
+      <rect x="-3" y="-15" width="6" height="7" rx="1"/>
+      <rect x="-3" y="-15" width="6" height="7" rx="1" transform="rotate(60)"/>
+      <rect x="-3" y="-15" width="6" height="7" rx="1" transform="rotate(120)"/>
+      <rect x="-3" y="-15" width="6" height="7" rx="1" transform="rotate(180)"/>
+      <rect x="-3" y="-15" width="6" height="7" rx="1" transform="rotate(240)"/>
+      <rect x="-3" y="-15" width="6" height="7" rx="1" transform="rotate(300)"/>
+    </g>
+    <circle r="4" fill="#e9ebf1"/>
+  </g>
+  <path d="M158 40h58M158 50h58M158 60h46M158 70h52" stroke="#6b7180" stroke-width="3"/>
+  <path d="M106 120 L126 100 L144 108 L166 86 L186 98 L204 82 L218 92 V120 Z" fill="#9aa0ad"/>
+  <path d="M106 120 L126 100 L144 108 L166 86 L186 98 L204 82 L218 92" stroke="#6b7180" stroke-width="2" fill="none"/>
+
+  <!-- studentessa seduta con il portatile -->
+  <rect x="40" y="222" width="58" height="8" rx="4" fill="#b51f26"/>
+  <path d="M48 230 L40 280 M90 230 L98 280" stroke="#9aa0ad" stroke-width="3"/>
+  <path d="M60 160 C46 162 44 180 46 222 H84 C88 184 84 164 72 160 Z" fill="#3d3f47"/>
+  <path d="M52 216 H120 L132 270 H118 L106 230 H52 Z" fill="#4a5262"/>
+  <path d="M116 268 h20 v7 h-22z" fill="#2b2b35"/>
+  <circle cx="64" cy="142" r="13" fill="#f2c5a7"/>
+  <path d="M50 144 C46 124 78 120 78 140 C74 132 62 130 56 138 C56 152 54 164 48 168 C46 158 48 150 50 144 Z" fill="#2b2b35"/>
+  <path d="M84 186 L126 180 L120 206 L82 210 Z" fill="#c9ced8"/>
+  <path d="M82 210 H126" stroke="#9aa0ad" stroke-width="3"/>
+  <circle cx="104" cy="194" r="3" fill="#fff"/>
+  <path d="M68 184 C78 194 88 198 100 200" stroke="#f2c5a7" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+  <!-- docente in piedi che indica la finestra -->
+  <path d="M244 186 L240 272 H254 L258 196 Z M262 196 L266 272 H280 L274 186 Z" fill="#4a5262"/>
+  <path d="M236 272 h20 v7 h-22z M264 272 h20 v7 h-18z" fill="#2b2b35"/>
+  <path d="M238 122 C240 112 276 112 278 122 L280 192 H236 Z" fill="#b51f26"/>
+  <path d="M248 114 L258 132 L268 114 Z" fill="#fff"/>
+  <path d="M242 128 C226 120 214 108 206 96" stroke="#b51f26" stroke-width="12" stroke-linecap="round" fill="none"/>
+  <circle cx="203" cy="92" r="6" fill="#f2c5a7"/>
+  <path d="M274 132 C278 152 272 160 258 162" stroke="#8c1820" stroke-width="11" stroke-linecap="round" fill="none"/>
+  <rect x="246" y="148" width="22" height="30" rx="2" fill="#3d4250" transform="rotate(-12 257 163)"/>
+  <rect x="252" y="104" width="12" height="12" fill="#f2c5a7"/>
+  <circle cx="258" cy="92" r="15" fill="#f2c5a7"/>
+  <path d="M244 90 C242 72 274 70 274 88 C268 82 254 82 244 90 Z" fill="#2b2b35"/>
+  <path d="M246 96 C248 112 268 112 270 96 C266 104 250 104 246 96 Z" fill="#2b2b35"/>
+</svg>

@@ -3,16 +3,16 @@ import { resolve } from "node:path";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import crypto from "node:crypto";
 
+const SCHOOL_DOMAIN = "@istitutoagnelli.it";
+const SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 ore
+
 const dbDir = resolve("data");
 if (!existsSync(dbDir)) mkdirSync(dbDir, { recursive: true });
 
-const dbPath = resolve(dbDir, "pctoxp.db");
-const db = new Database(dbPath);
+const db = new Database(resolve(dbDir, "pctoxp.db"));
 
 db.pragma("journal_mode = WAL");
 db.pragma("foreign_keys = ON");
-
-db.exec(`DROP TABLE IF EXISTS sessions;`);
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS studenti (
@@ -25,6 +25,7 @@ db.exec(`
     updated_at  TEXT    NOT NULL DEFAULT (datetime('now'))
   );
 
+  -- I docenti vengono inseriti a mano: chi non è in questa tabella è uno studente.
   CREATE TABLE IF NOT EXISTS docenti (
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     email       TEXT    UNIQUE NOT NULL,
@@ -43,7 +44,8 @@ db.exec(`
     end_time     TEXT    NOT NULL DEFAULT '',
     ente         TEXT    NOT NULL DEFAULT '',
     luogo        TEXT    NOT NULL DEFAULT '',
-    max_studenti INTEGER NOT NULL DEFAULT 5,
+    max_studenti INTEGER NOT NULL DEFAULT 20,
+    ore          INTEGER,
     created_by   INTEGER REFERENCES docenti(id) ON DELETE SET NULL,
     created_at   TEXT    NOT NULL DEFAULT (datetime('now'))
   );
@@ -55,188 +57,190 @@ db.exec(`
     data_iscrizione  TEXT    NOT NULL DEFAULT (datetime('now')),
     UNIQUE (studente_id, pcto_id)
   );
+
+  -- Si salva solo l'hash SHA-256 del token: chi legge il DB non può riusare le sessioni.
+  CREATE TABLE IF NOT EXISTS sessioni (
+    token_hash  TEXT    PRIMARY KEY,
+    email       TEXT    NOT NULL,
+    expires_at  INTEGER NOT NULL
+  );
 `);
 
-const docentiCount = db
-  .prepare("SELECT count(*) as count FROM docenti")
-  .get().count;
-if (docentiCount === 0) {
-  const jsonPath = resolve("data/docenti.json");
-  let loaded = false;
-  if (existsSync(jsonPath)) {
-    try {
-      const parsed = JSON.parse(readFileSync(jsonPath, "utf-8"));
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const stmt = db.prepare(
-          "INSERT OR IGNORE INTO docenti (email) VALUES (?)",
-        );
-        for (const em of parsed) {
-          if (typeof em === "string" && em.trim()) {
-            stmt.run(em.trim().toLowerCase());
-          }
-        }
-        loaded = true;
-      }
-    } catch {}
-  }
-  if (!loaded) {
-    db.prepare("INSERT OR IGNORE INTO docenti (email) VALUES (?)").run(
-      "gabriele.savio@istitutoagnelli.it",
-    );
+// Migrazioni per i database creati con versioni precedenti dello schema.
+function ensureColumn(table, column, definition) {
+  const cols = db.prepare(`PRAGMA table_info(${table})`).all();
+  if (!cols.some((c) => c.name === column)) {
+    db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
   }
 }
+ensureColumn("docenti", "img_profilo", "TEXT"); // foto profilo presa da Google
+ensureColumn("pcto", "ore", "INTEGER"); // monte ore totale del PCTO
 
-export function getDocentiList() {
+db.prepare("DELETE FROM sessioni WHERE expires_at <= ?").run(Date.now());
+
+// Popolamento iniziale opzionale da data/docenti.json (array di email), solo a tabella vuota.
+const docentiCount = db.prepare("SELECT count(*) AS count FROM docenti").get().count;
+const docentiJson = resolve(dbDir, "docenti.json");
+if (docentiCount === 0 && existsSync(docentiJson)) {
   try {
-    const rows = db
-      .prepare("SELECT email FROM docenti ORDER BY email ASC")
-      .all();
-    return rows.map((r) => r.email.trim().toLowerCase());
+    const parsed = JSON.parse(readFileSync(docentiJson, "utf-8"));
+    if (Array.isArray(parsed)) {
+      const stmt = db.prepare("INSERT OR IGNORE INTO docenti (email) VALUES (?)");
+      for (const em of parsed) {
+        if (typeof em === "string" && em.trim()) stmt.run(normalizeEmail(em));
+      }
+    }
   } catch (err) {
-    console.error("Errore nella lettura dei docenti:", err);
-    return [];
+    console.error("Impossibile leggere data/docenti.json:", err);
   }
 }
 
-export function isDocenteEmail(email) {
-  const normalized = email.trim().toLowerCase();
-  const row = db
-    .prepare("SELECT id FROM docenti WHERE LOWER(email) = ?")
-    .get(normalized);
-  return !!row;
+function normalizeEmail(email) {
+  return String(email ?? "").trim().toLowerCase();
 }
 
-export function addDocente(email, nome = "", cognome = "") {
-  const normalized = email.trim().toLowerCase();
-  db.prepare(
-    "INSERT OR IGNORE INTO docenti (email, nome, cognome) VALUES (?, ?, ?)",
-  ).run(normalized, nome, cognome);
+// ---------------------------------------------------------------- docenti
+
+function isDocenteEmail(email) {
+  return !!db.prepare("SELECT 1 FROM docenti WHERE LOWER(email) = ?").get(normalizeEmail(email));
 }
 
-export function removeDocente(email) {
-  const normalized = email.trim().toLowerCase();
-  db.prepare("DELETE FROM docenti WHERE LOWER(email) = ?").run(normalized);
-}
+// ---------------------------------------------------------------- utenti
 
-export function validateSchoolEmail(email) {
-  const normalized = email.trim().toLowerCase();
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  if (!normalized.endsWith("@istitutoagnelli.it")) {
+/**
+ * Controlla il dominio della scuola e ricava nome/cognome dalla parte locale
+ * (nome.cognome@...). Il formato nome.cognome è obbligatorio solo per gli studenti.
+ */
+function validateSchoolEmail(email, { requireNomeCognome = true } = {}) {
+  const normalized = normalizeEmail(email);
+
+  if (!normalized.endsWith(SCHOOL_DOMAIN) || normalized.length === SCHOOL_DOMAIN.length) {
     return {
       valid: false,
-      error:
-        "Accesso negato: devi utilizzare un account Google della scuola (@istitutoagnelli.it).",
+      error: `Accesso negato: devi utilizzare un account Google della scuola (${SCHOOL_DOMAIN}).`,
     };
   }
 
-  const localPart = normalized.slice(0, -"@istitutoagnelli.it".length);
-  const parts = localPart.split(".").filter(Boolean);
+  const parts = normalized.slice(0, -SCHOOL_DOMAIN.length).split(".").filter(Boolean);
 
   if (parts.length < 2) {
-    return {
-      valid: false,
-      error:
-        "Formato email non valido. Il formato deve essere nome.cognome@istitutoagnelli.it.",
-    };
+    if (requireNomeCognome) {
+      return {
+        valid: false,
+        error: `Formato email non valido. Il formato deve essere nome.cognome${SCHOOL_DOMAIN}.`,
+      };
+    }
+    return { valid: true, nome: capitalize(parts[0] ?? ""), cognome: "" };
   }
 
-  const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-  const nome = capitalize(parts[0]);
-  const cognome = parts.slice(1).map(capitalize).join(" ");
-
-  return { valid: true, nome, cognome };
+  return {
+    valid: true,
+    nome: capitalize(parts[0]),
+    cognome: parts.slice(1).map(capitalize).join(" "),
+  };
 }
 
+function toProfile(row, ruolo) {
+  if (!row) return null;
+  return {
+    id: row.id,
+    email: row.email,
+    nome: row.nome,
+    cognome: row.cognome,
+    img_profilo: row.img_profilo ?? null,
+    // Calcolato, non salvato: docente se l'email è nella tabella docenti.
+    ruolo,
+  };
+}
+
+/** Cerca l'utente: prima tra i docenti, poi tra gli studenti. */
+function getUserByEmail(email) {
+  const normalized = normalizeEmail(email);
+  const docente = db.prepare("SELECT * FROM docenti WHERE LOWER(email) = ?").get(normalized);
+  if (docente) return toProfile(docente, "docente");
+  const studente = db.prepare("SELECT * FROM studenti WHERE email = ?").get(normalized);
+  return toProfile(studente, "studente");
+}
+
+/**
+ * Registra/aggiorna l'utente dopo un login Google verificato.
+ * Lancia un errore con messaggio leggibile se l'email non è ammessa.
+ */
 export function upsertGoogleProfile(data) {
-  const email = data.email.trim().toLowerCase();
-  const validation = validateSchoolEmail(email);
+  const email = normalizeEmail(data.email);
+  const docente = isDocenteEmail(email);
+  const validation = validateSchoolEmail(email, { requireNomeCognome: !docente });
+  if (!validation.valid) throw new Error(validation.error);
 
-  if (!validation.valid) {
-    throw new Error(validation.error);
-  }
+  const nome = String(data.nome ?? "").trim() || validation.nome || "Utente";
+  const cognome = String(data.cognome ?? "").trim() || validation.cognome || "";
+  const img = data.img_profilo || null;
 
-  const nome = data.nome?.trim() || validation.nome || "Utente";
-  const cognome = data.cognome?.trim() || validation.cognome || "";
-
-  const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(nome + "+" + cognome)}&background=1976d2&color=fff&size=120&bold=true`;
-  const img = data.img_profilo || fallbackAvatar;
-
-  const existing = db
-    .prepare("SELECT * FROM studenti WHERE email = ?")
-    .get(email);
-
-  if (existing) {
+  if (docente) {
+    // Nome e cognome inseriti a mano hanno la precedenza su quelli di Google.
     db.prepare(
-      `
-      UPDATE studenti
-      SET nome = ?, cognome = ?, img_profilo = ?, updated_at = datetime('now')
-      WHERE email = ?
-    `,
+      `UPDATE docenti
+         SET nome = CASE WHEN nome = '' THEN ? ELSE nome END,
+             cognome = CASE WHEN cognome = '' THEN ? ELSE cognome END,
+             img_profilo = ?
+       WHERE LOWER(email) = ?`,
     ).run(nome, cognome, img, email);
-
-    return db.prepare("SELECT * FROM studenti WHERE email = ?").get(email);
   } else {
-    const res = db
-      .prepare(
-        `
-      INSERT INTO studenti (email, nome, cognome, img_profilo)
-      VALUES (?, ?, ?, ?, ?)
-    `,
-      )
-      .run(email, nome, cognome, img);
-
-    return db
-      .prepare("SELECT * FROM prostudenti files WHERE id = ?")
-      .get(res.lastInsertRowid);
+    db.prepare(
+      `INSERT INTO studenti (email, nome, cognome, img_profilo)
+       VALUES (?, ?, ?, ?)
+       ON CONFLICT(email) DO UPDATE SET
+         nome = excluded.nome,
+         cognome = excluded.cognome,
+         img_profilo = excluded.img_profilo,
+         updated_at = datetime('now')`,
+    ).run(email, nome, cognome, img);
   }
+
+  return getUserByEmail(email);
 }
 
-const SESSION_SECRET = "pctoxp-school-secret-key-2026";
+// ---------------------------------------------------------------- sessioni
 
-export function createSession(userId) {
-  const timestamp = Date.now().toString();
-  const data = `${userId}.${timestamp}`;
-  const hmac = crypto
-    .createHmac("sha256", SESSION_SECRET)
-    .update(data)
-    .digest("hex");
-  return Buffer.from(`${data}.${hmac}`).toString("base64url");
+const hashToken = (token) => crypto.createHash("sha256").update(token).digest("hex");
+
+export function createSession(email) {
+  const token = crypto.randomBytes(32).toString("base64url");
+  db.prepare(
+    "INSERT INTO sessioni (token_hash, email, expires_at) VALUES (?, ?, ?)",
+  ).run(hashToken(token), normalizeEmail(email), Date.now() + SESSION_TTL_MS);
+  return token;
 }
 
-export function getSession(token) {
-  if (!token) return null;
-  try {
-    const raw = Buffer.from(token, "base64url").toString("utf-8");
-    const [userIdStr, timestampStr, hmac] = raw.split(".");
-    if (!userIdStr || !timestampStr || !hmac) return null;
-
-    const data = `${userIdStr}.${timestampStr}`;
-    const expected = crypto
-      .createHmac("sha256", SESSION_SECRET)
-      .update(data)
-      .digest("hex");
-    if (expected !== hmac) return null;
-
-    const userId = Number(userIdStr);
-    const profile = db
-      .prepare("SELECT * FROM profiles WHERE id = ?")
-      .get(userId);
-    return profile ?? null;
-  } catch {
+/** Restituisce il profilo collegato al token, o null se assente/scaduto/revocato. */
+function getSession(token) {
+  if (typeof token !== "string" || !token) return null;
+  const hash = hashToken(token);
+  const row = db.prepare("SELECT email, expires_at FROM sessioni WHERE token_hash = ?").get(hash);
+  if (!row) return null;
+  if (row.expires_at <= Date.now()) {
+    db.prepare("DELETE FROM sessioni WHERE token_hash = ?").run(hash);
     return null;
   }
+  // Il ruolo viene ricalcolato a ogni richiesta: togliere un docente dalla tabella ha effetto subito.
+  return getUserByEmail(row.email);
 }
 
-export function deleteSession(_token) {}
+export function deleteSession(token) {
+  if (typeof token !== "string" || !token) return;
+  db.prepare("DELETE FROM sessioni WHERE token_hash = ?").run(hashToken(token));
+}
 
-export function clearAllUsers() {
-  db.prepare("DELETE FROM iscrizioni").run();
-  db.prepare("DELETE FROM profiles").run();
-  try {
-    db.prepare(
-      "DELETE FROM sqlite_sequence WHERE name IN ('profiles', 'iscrizioni')",
-    ).run();
-  } catch {}
+export function getBearerToken(request) {
+  const match = (request.headers.get("authorization") ?? "").match(/^Bearer\s+(\S+)$/i);
+  return match ? match[1] : null;
+}
+
+/** Profilo dell'utente autenticato dalla richiesta, o null. */
+export function getUserFromRequest(request) {
+  return getSession(getBearerToken(request));
 }
 
 export default db;

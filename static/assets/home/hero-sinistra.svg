@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 280" role="img" aria-label="Studenti al lavoro con un docente">
+  <!-- Illustrazione segnaposto: sostituibile con un'illustrazione definitiva -->
+  <defs>
+    <linearGradient id="blob" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#eceef4"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sfondo a macchia -->
+  <path d="M40 280 C10 240 20 200 38 170 C52 140 30 110 52 82 C76 50 118 62 140 40 C166 14 214 8 246 30 C280 52 270 92 300 112 C330 134 336 180 318 214 C304 242 316 262 312 280 Z" fill="url(#blob)"/>
+
+  <!-- rete di collegamenti -->
+  <g stroke="#b51f26" stroke-width="1.4" fill="none" opacity=".75">
+    <path d="M118 78 L196 58 L250 96"/>
+    <path d="M118 78 L150 120 L196 58"/>
+    <path d="M150 120 L230 132"/>
+  </g>
+  <g fill="#b51f26">
+    <circle cx="196" cy="58" r="3"/><circle cx="150" cy="120" r="3"/>
+    <circle cx="230" cy="132" r="3"/><circle cx="250" cy="96" r="3"/>
+  </g>
+  <rect x="134" y="146" width="22" height="14" rx="2" fill="#cfd3dd"/>
+  <path d="M138 151h14M138 155h10" stroke="#8a8f9c" stroke-width="1.4"/>
+  <rect x="150" y="38" width="12" height="12" rx="2" fill="#cfd3dd"/>
+
+  <!-- atomo -->
+  <g transform="translate(220 68)">
+    <circle r="13" fill="#b51f26"/>
+    <g fill="none" stroke="#8c1820" stroke-width="1.6">
+      <ellipse rx="34" ry="11"/>
+      <ellipse rx="34" ry="11" transform="rotate(60)"/>
+      <ellipse rx="34" ry="11" transform="rotate(-60)"/>
+    </g>
+  </g>
+
+  <!-- studente nel cerchio con lo smartphone -->
+  <circle cx="102" cy="76" r="34" fill="#e3e6ee"/>
+  <path d="M74 104 C78 88 90 84 102 84 C114 84 126 88 130 104 Z" fill="#b51f26"/>
+  <circle cx="102" cy="66" r="12" fill="#f2c5a7"/>
+  <path d="M89 63 C89 50 115 49 115 62 C110 57 96 57 89 63 Z" fill="#2b2b35"/>
+  <rect x="80" y="70" width="9" height="15" rx="2" fill="#3d4250"/>
+
+  <!-- studentessa seduta sullo sgabello con il portatile -->
+  <rect x="32" y="214" width="56" height="8" rx="4" fill="#b51f26"/>
+  <path d="M40 222 L32 280 M80 222 L88 280 M60 222 V280" stroke="#9aa0ad" stroke-width="3"/>
+  <path d="M52 150 C40 152 36 168 38 214 H76 C78 176 74 154 62 150 Z" fill="#3d3f47"/>
+  <path d="M44 210 H108 L112 262 H100 L96 222 H44 Z" fill="#4a5262"/>
+  <path d="M98 262 h18 v6 h-20 z" fill="#b51f26"/>
+  <circle cx="56" cy="134" r="13" fill="#f2c5a7"/>
+  <path d="M42 136 C38 116 70 112 70 132 C66 124 54 122 48 130 C48 144 46 156 40 160 C38 150 40 142 42 136 Z" fill="#2b2b35"/>
+  <path d="M76 178 L118 172 L112 198 L74 202 Z" fill="#c9ced8"/>
+  <path d="M74 202 H118" stroke="#9aa0ad" stroke-width="3"/>
+  <path d="M60 176 C70 186 80 190 92 192" stroke="#f2c5a7" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+  <!-- studente seduto a gambe incrociate -->
+  <ellipse cx="160" cy="248" rx="44" ry="11" fill="#4a5262"/>
+  <path d="M140 200 C140 182 180 182 180 200 V240 H140 Z" fill="#3d3f47"/>
+  <circle cx="160" cy="170" r="13" fill="#f2c5a7"/>
+  <path d="M146 168 C146 152 174 152 174 166 C166 160 154 160 146 168 Z" fill="#2b2b35"/>
+  <path d="M136 228 L184 228 L188 246 L132 246 Z" fill="#c9ced8"/>
+  <path d="M138 214 l14 -2 M182 214 l-14 -2" stroke="#f2c5a7" stroke-width="7" stroke-linecap="round"/>
+  <path d="M120 256 h14 v6 h-16z M186 256 h14 v6 h-14z" fill="#b51f26"/>
+
+  <!-- pila di libri -->
+  <rect x="210" y="236" width="34" height="8" rx="2" fill="#b51f26"/>
+  <rect x="214" y="228" width="28" height="8" rx="2" fill="#4a5262"/>
+  <circle cx="230" cy="220" r="7" fill="#b51f26"/>
+
+  <!-- docente in piedi che indica -->
+  <path d="M272 186 L268 272 H282 L286 196 Z M290 196 L294 272 H308 L302 186 Z" fill="#4a5262"/>
+  <path d="M264 272 h20 v7 h-22z M292 272 h20 v7 h-18z" fill="#2b2b35"/>
+  <path d="M266 122 C268 112 304 112 306 122 L308 192 H264 Z" fill="#b51f26"/>
+  <path d="M276 114 L286 132 L296 114 Z" fill="#fff"/>
+  <path d="M270 128 C254 132 238 124 226 112" stroke="#b51f26" stroke-width="12" stroke-linecap="round" fill="none"/>
+  <circle cx="222" cy="109" r="6" fill="#f2c5a7"/>
+  <path d="M302 132 C306 152 300 160 286 162" stroke="#8c1820" stroke-width="11" stroke-linecap="round" fill="none"/>
+  <rect x="274" y="148" width="22" height="30" rx="2" fill="#3d4250" transform="rotate(-12 285 163)"/>
+  <rect x="280" y="104" width="12" height="12" fill="#f2c5a7"/>
+  <circle cx="286" cy="92" r="15" fill="#f2c5a7"/>
+  <path d="M272 90 C270 72 302 70 302 88 C296 82 282 82 272 90 Z" fill="#2b2b35"/>
+  <path d="M274 96 C276 112 296 112 298 96 C294 104 278 104 274 96 Z" fill="#2b2b35"/>
+</svg>

@@ -13,9 +13,3 @@ export function applyTheme(theme) {
   localStorage.setItem(THEME_KEY, theme);
 }
 
-export function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme') || 'light';
-  const next = current === 'dark' ? 'light' : 'dark';
-  applyTheme(next);
-  return next;
-}
