@@ -4,6 +4,8 @@
 
   let {
     clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+    width = 290,
+    compact = false,
     onSuccess,
     onError
   } = $props();
@@ -32,7 +34,7 @@
             text: 'signin_with',
             shape: 'rectangular',
             logo_alignment: 'left',
-            width: 290
+            width
           });
         } catch (err) {
           console.error('Inizializzazione Google:', err);
@@ -72,7 +74,7 @@
   }
 </script>
 
-<div class="google-btn-wrapper">
+<div class="google-btn-wrapper" class:compact>
   <div bind:this={container} class="gsi-container"></div>
 
   {#if !clientId}
@@ -102,6 +104,18 @@
     justify-content: center;
     min-height: 44px;
     width: 100%;
+  }
+
+  /* versione per l'header: senza margini e larga quanto il bottone */
+  .google-btn-wrapper.compact {
+    width: auto;
+    margin-top: 0;
+    gap: 4px;
+  }
+
+  .google-btn-wrapper.compact .gsi-container {
+    width: auto;
+    min-height: 40px;
   }
 
   .login-loading {

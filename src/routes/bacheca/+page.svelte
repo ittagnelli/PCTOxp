@@ -8,14 +8,6 @@
   let loading = $state(true);
   let errorMessage = $state('');
 
-  const bachecaHref = $derived(
-    profile?.ruolo === 'docente' ? '/bacheca/docente' : '/bacheca/studente'
-  );
-  const azioneHref = $derived(profile ? bachecaHref : '/login');
-  const azioneLabel = $derived(
-    !profile ? 'Accedi per candidarti' : profile.ruolo === 'docente' ? 'Gestisci i PCTO' : 'Vai alla tua bacheca'
-  );
-
   // Nella home si mostrano solo i percorsi non ancora conclusi.
   const disponibili = $derived(pcto.filter((p) => p.end_date >= toInputDate(new Date())));
 
@@ -61,12 +53,6 @@
             Accedi per candidarti e gestire le tue attività.
           {/if}
         </p>
-        <div class="hero-actions">
-          <a class="hero-btn primary" href={azioneHref}>
-            {profile ? 'Vai alla tua bacheca' : 'Accedi per candidarti'}
-          </a>
-          <a class="hero-btn outline" href="#percorsi">Scopri i progetti</a>
-        </div>
       </div>
 
       <img class="hero-img hero-img-dx" src="/assets/home/hero-destra.svg" alt="" />
@@ -85,12 +71,7 @@
     {:else}
       <div class="griglia">
         {#each disponibili as item, i (item.id)}
-          <PctoCardPubblica
-            pcto={item}
-            variante={i % 2 === 0 ? 'rossa' : 'grigia'}
-            {azioneHref}
-            {azioneLabel}
-          />
+          <PctoCardPubblica pcto={item} variante={i % 2 === 0 ? 'rossa' : 'grigia'} />
         {/each}
       </div>
     {/if}
@@ -166,42 +147,6 @@
     line-height: 1.5;
   }
 
-  .hero-actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 18px;
-  }
-
-  .hero-btn {
-    padding: 9px 18px;
-    border-radius: 5px;
-    font-size: 19px;
-    font-weight: 500;
-    text-decoration: none;
-    transition: background 0.15s ease, filter 0.15s ease;
-  }
-
-  .hero-btn.primary {
-    background: #fff;
-    color: var(--fsl-red-dark);
-    border: 1px solid #fff;
-  }
-
-  .hero-btn.primary:hover {
-    filter: brightness(0.94);
-  }
-
-  .hero-btn.outline {
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.85);
-  }
-
-  .hero-btn.outline:hover {
-    background: rgba(255, 255, 255, 0.12);
-  }
-
   .percorsi {
     max-width: 1100px;
     margin: 0 auto;
@@ -247,10 +192,6 @@
     }
 
     .hero-body p {
-      font-size: 16px;
-    }
-
-    .hero-btn {
       font-size: 16px;
     }
 

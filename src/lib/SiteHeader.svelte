@@ -1,5 +1,7 @@
 <script>
+  import { goto } from '$app/navigation';
   import AgnelliMark from './AgnelliMark.svelte';
+  import GoogleButton from './GoogleButton.svelte';
   import { logout } from './auth.js';
 
   let {
@@ -7,7 +9,17 @@
     subtitle = "Bacheca pubblica - La piattaforma per i PCTO e la formazione dell'Istituto Agnelli"
   } = $props();
 
+  let loginError = $state('');
+
+  // larghezza (px) del bottone di login: Google accetta valori tra 200 e 400
+  const LOGIN_WIDTH = 240;
+
   const bachecaHref = $derived(profile?.ruolo === 'docente' ? '/bacheca/docente' : '/bacheca/studente');
+
+  function handleLoginSuccess(user) {
+    loginError = '';
+    goto(user.ruolo === 'docente' ? '/bacheca/docente' : '/bacheca/studente');
+  }
 
   async function handleLogout() {
     await logout();
@@ -40,20 +52,36 @@
         <span class="material-icons">logout</span>
       </button>
     {:else}
-      <a class="header-google-btn" href="/login">
-        <span class="g-box">
-          <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">
-            <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/>
-            <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/>
-            <path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6.1z"/>
-            <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.2 1.5-4.9 2.3-8.2 2.3-6.2 0-11.5-4.2-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/>
-          </svg>
-        </span>
-        <span class="g-label">Accedi con Google</span>
-      </a>
-      <a class="header-icon-btn" href="/login" title="Accedi" aria-label="Accedi">
-        <span class="material-icons">login</span>
-      </a>
+      <div class="header-login" style="width: {LOGIN_WIDTH}px">
+        <!-- Aspetto: bottone nello stile del sito (solo grafica) -->
+        <div class="header-google-btn login-visual" aria-hidden="true">
+          <span class="g-box">
+            <svg viewBox="0 0 48 48" width="26" height="26" aria-hidden="true">
+              <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/>
+              <path fill="#FBBC05" d="M10.5 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.8-6.1z"/>
+              <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.2 1.5-4.9 2.3-8.2 2.3-6.2 0-11.5-4.2-13.4-9.9l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/>
+            </svg>
+          </span>
+          <span class="g-label">Accedi con Google</span>
+        </div>
+
+        <!-- Funzionamento: il bottone ufficiale di Google, trasparente, sopra la grafica -->
+        <div class="login-overlay">
+          <div class="login-scale">
+            <GoogleButton
+              compact
+              width={LOGIN_WIDTH}
+              onSuccess={handleLoginSuccess}
+              onError={(message) => (loginError = message)}
+            />
+          </div>
+        </div>
+
+        {#if loginError}
+          <p class="login-error">{loginError}</p>
+        {/if}
+      </div>
     {/if}
   </div>
 </header>
@@ -186,6 +214,57 @@
 
   .header-icon-btn .material-icons {
     font-size: 34px;
+  }
+
+  /* login: grafica nello stile del sito + bottone Google trasparente sopra */
+  .header-login {
+    position: relative;
+    height: 50px;
+  }
+
+  .login-visual {
+    width: 100%;
+  }
+
+  .login-visual .g-label {
+    flex: 1;
+    justify-content: center;
+    padding: 0 12px;
+  }
+
+  .header-login:hover .login-visual {
+    filter: brightness(1.1);
+  }
+
+  .login-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    overflow: hidden;
+    opacity: 0.0001;
+  }
+
+  /* il bottone di Google è alto 40px: lo allungo a 50px per coprire tutta la grafica */
+  .login-scale {
+    height: 40px;
+    transform: scaleY(1.25);
+    transform-origin: top left;
+  }
+
+  .login-error {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 10;
+    width: 260px;
+    margin: 0;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: var(--fsl-surface);
+    color: #d32f2f;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   }
 
   @media (max-width: 1100px) {

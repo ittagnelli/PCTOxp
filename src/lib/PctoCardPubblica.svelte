@@ -3,7 +3,7 @@
   import { formatPeriodo } from './format.js';
 
   /** variante: 'rossa' | 'grigia' (alternate nella griglia, come nel mockup) */
-  let { pcto, variante = 'rossa', azioneHref = '/login', azioneLabel = 'Accedi per candidarti' } = $props();
+  let { pcto, variante = 'rossa' } = $props();
 
   const periodo = $derived(formatPeriodo(pcto.start_date, pcto.end_date));
 </script>
@@ -21,8 +21,6 @@
     <div><dt>Ore:</dt> <dd>{pcto.ore ?? '—'}</dd></div>
     <div><dt>Data:</dt> <dd>{periodo}</dd></div>
   </dl>
-
-  <a class="fsl-card-btn" href={azioneHref}>{azioneLabel}</a>
 </article>
 
 <style>
@@ -81,7 +79,7 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 4px 16px;
-    margin: 18px 0 16px;
+    margin: 18px 0 0;
     font-size: 18px;
   }
 
@@ -95,32 +93,13 @@
     margin: 0;
   }
 
-  .fsl-card-btn {
-    display: block;
-    padding: 12px;
-    border-radius: 4px;
-    background: var(--accento);
-    color: #fff;
-    text-align: center;
-    text-decoration: none;
-    font-size: 18px;
-    font-weight: 500;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    transition: filter 0.15s ease;
-  }
-
-  .fsl-card-btn:hover {
-    filter: brightness(1.15);
-  }
-
   @media (max-width: 520px) {
     .fsl-card-head h3 {
       font-size: 20px;
     }
 
     .fsl-card-desc,
-    .fsl-card-meta,
-    .fsl-card-btn {
+    .fsl-card-meta {
       font-size: 16px;
     }
   }

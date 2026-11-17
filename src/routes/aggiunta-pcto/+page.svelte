@@ -1,6 +1,6 @@
 <script>
   import { goto } from '$app/navigation';
-  import { authHeaders, getProfile, Navbar, CalendarPicker } from '$lib';
+  import { authHeaders, getProfile, AppLayout, CalendarPicker } from '$lib';
   import { onMount } from 'svelte';
 
   let profile = $state(null);
@@ -14,56 +14,60 @@
   let endSelected = $state(null);
   let startTime = $state('08:30');
   let endTime = $state('12:30');
-
-  let bachecaEl = $state(null);
-  let isBachecaVisible = $state(false);
-  let isMobile = $state(false);
-
-  const isFloatingSubmit = $derived(isMobile && !isBachecaVisible);
+  let inviando = $state(false);
 
   async function submitPCTO() {
+    if (inviando) return;
+
     if (!title.trim() || !description.trim() || !ente.trim() || !luogo.trim() || !startSelected || !endSelected || !maxStudenti || !ore) {
       alert('Per favore compila tutti i campi obbligatori (Titolo, Ente/Azienda, Luogo, Limite studenti, Ore, Date e Dettagli).');
       return;
     }
 
-    const response = await fetch('/api/pcto', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...authHeaders()
-      },
-      body: JSON.stringify({
-        title,
-        description,
-        ente,
-        luogo,
-        max_studenti: maxStudenti,
-        ore,
-        start_date: startSelected,
-        end_date: endSelected,
-        start_time: startTime || '08:30',
-        end_time: endTime || '12:30'
-      })
-    });
+    inviando = true;
+    try {
+      const response = await fetch('/api/pcto', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...authHeaders()
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          ente,
+          luogo,
+          max_studenti: maxStudenti,
+          ore,
+          start_date: startSelected,
+          end_date: endSelected,
+          start_time: startTime || '08:30',
+          end_time: endTime || '12:30'
+        })
+      });
 
-    const data = await response.json();
-    if (!data.success) {
-      alert(`Errore: ${data.error ?? 'operazione fallita'}`);
-      return;
+      const data = await response.json();
+      if (!data.success) {
+        alert(`Errore: ${data.error ?? 'operazione fallita'}`);
+        return;
+      }
+
+      title = '';
+      description = '';
+      ente = '';
+      luogo = '';
+      maxStudenti = 20;
+      ore = null;
+      startSelected = null;
+      endSelected = null;
+      startTime = '08:30';
+      endTime = '12:30';
+      alert('PCTO aggiunto con successo!');
+    } catch (err) {
+      alert(`Errore: ${err instanceof Error ? err.message : 'Errore di rete'}`);
+    } finally {
+      inviando = false;
     }
-
-    title = '';
-    description = '';
-    ente = '';
-    luogo = '';
-    maxStudenti = 20;
-    ore = null;
-    startSelected = null;
-    endSelected = null;
-    startTime = '08:30';
-    endTime = '12:30';
-    alert('PCTO aggiunto con successo!');
   }
 
   onMount(async () => {
@@ -78,34 +82,6 @@
     }
 
     profile = userProfile;
-
-    const updateMobile = () => {
-      isMobile = window.innerWidth <= 1024;
-    };
-    updateMobile();
-    window.addEventListener('resize', updateMobile);
-
-    let observer;
-    if (bachecaEl && typeof IntersectionObserver !== 'undefined') {
-      observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            isBachecaVisible = entry.isIntersecting;
-          }
-        },
-        {
-          root: null,
-          rootMargin: '0px',
-          threshold: 0
-        }
-      );
-      observer.observe(bachecaEl);
-    }
-
-    return () => {
-      window.removeEventListener('resize', updateMobile);
-      if (observer) observer.disconnect();
-    };
   });
 </script>
 
@@ -113,52 +89,225 @@
   <title>Aggiungi PCTO - PCTOxp</title>
 </svelte:head>
 
-<main class="app-shell add-shell">
-  <Navbar {profile} showTeacherLinks />
+<AppLayout
+  {profile}
+  title="Aggiungi PCTO"
+  subtitle="Bacheca per i docenti"
+  area="Area Docenti"
+>
+  <a class="fsl-btn light indietro" href="/bacheca/docente">
+    <span class="material-icons">arrow_back</span>
+    Torna ai PCTO
+  </a>
 
-  <section class="input-container">
-    <form id="pcto-form" onsubmit={(event) => { event.preventDefault(); submitPCTO(); }}>
-      <h3 class="PCTO">Inserisci PCTO:</h3>
-      <input type="text" name="PCTO" id="pcto-title" placeholder="Titolo del PCTO" bind:value={title} required />
+  <form
+    class="aggiunta"
+    onsubmit={(event) => {
+      event.preventDefault();
+      submitPCTO();
+    }}
+  >
+    <div class="campi">
+      <label class="titolo-campo" for="pcto-title">Inserisci PCTO:</label>
+      <input
+        id="pcto-title"
+        class="campo"
+        type="text"
+        placeholder="Titolo del PCTO"
+        bind:value={title}
+        required
+      />
 
-      <h3 class="details">Dettagli PCTO:</h3>
-      <textarea id="pcto-desc" rows="4" placeholder="Descrizione delle attività e dettagli..." bind:value={description} required></textarea>
-    </form>
-  </section>
+      <label class="titolo-campo" for="pcto-desc">Dettagli PCTO:</label>
+      <textarea
+        id="pcto-desc"
+        class="campo"
+        rows="4"
+        placeholder="Descrizione delle attività e dettagli..."
+        bind:value={description}
+        required
+      ></textarea>
 
-  <CalendarPicker
-    bind:startDate={startSelected}
-    bind:endDate={endSelected}
-    bind:startTime={startTime}
-    bind:endTime={endTime}
-  />
+      <div class="extra">
+        <h2>Dati aggiuntivi</h2>
 
-  <div class="mobile-submit-container" class:floating={isFloatingSubmit}>
-    <button type="submit" form="pcto-form" class="submit-mobile-btn">Inserisci pcto</button>
-  </div>
+        <label class="etichetta" for="pcto-ente">Ente / Azienda</label>
+        <input
+          id="pcto-ente"
+          class="campo"
+          type="text"
+          placeholder="Es. Politecnico di Torino, Comau..."
+          bind:value={ente}
+          required
+        />
 
-  <section class="mini-bacheca" bind:this={bachecaEl}>
-    <div class="extra-fields-card">
-      <h4>Dati aggiuntivi</h4>
-      <div class="extra-fields-grid">
-        <div class="full-width">
-          <label class="input-label" for="pcto-ente">Ente / Azienda</label>
-          <input type="text" id="pcto-ente" class="text-input" placeholder="Es. Politecnico di Torino, Comau..." bind:value={ente} form="pcto-form" required />
-        </div>
-        <div class="full-width">
-          <label class="input-label" for="pcto-luogo">Luogo di svolgimento</label>
-          <input type="text" id="pcto-luogo" class="text-input" placeholder="Es. Laboratorio 3 / Sede aziendale" bind:value={luogo} form="pcto-form" required />
-        </div>
-        <div>
-          <label class="input-label" for="pcto-max-studenti">Limite studenti</label>
-          <input type="number" id="pcto-max-studenti" class="text-input" min="1" max="500" placeholder="20" bind:value={maxStudenti} form="pcto-form" required />
-        </div>
-        <div>
-          <label class="input-label" for="pcto-ore">Ore totali</label>
-          <input type="number" id="pcto-ore" class="text-input" min="1" max="2000" placeholder="40" bind:value={ore} form="pcto-form" required />
+        <label class="etichetta" for="pcto-luogo">Luogo di svolgimento</label>
+        <input
+          id="pcto-luogo"
+          class="campo"
+          type="text"
+          placeholder="Es. Laboratorio 3 / Sede aziendale"
+          bind:value={luogo}
+          required
+        />
+
+        <div class="coppia">
+          <div>
+            <label class="etichetta" for="pcto-max-studenti">Limite studenti</label>
+            <input
+              id="pcto-max-studenti"
+              class="campo"
+              type="number"
+              min="1"
+              max="500"
+              placeholder="20"
+              bind:value={maxStudenti}
+              required
+            />
+          </div>
+          <div>
+            <label class="etichetta" for="pcto-ore">Ore totali</label>
+            <input
+              id="pcto-ore"
+              class="campo"
+              type="number"
+              min="1"
+              max="2000"
+              placeholder="40"
+              bind:value={ore}
+              required
+            />
+          </div>
         </div>
       </div>
     </div>
-    <button type="submit" form="pcto-form" class="submit-extra-btn">Inserisci PCTO</button>
-  </section>
-</main>
+
+    <div class="calendario">
+      <CalendarPicker
+        bind:startDate={startSelected}
+        bind:endDate={endSelected}
+        bind:startTime
+        bind:endTime
+      />
+    </div>
+
+    <button class="fsl-btn invio" type="submit" disabled={inviando}>
+      {inviando ? 'Salvataggio...' : 'Inserisci PCTO'}
+    </button>
+  </form>
+</AppLayout>
+
+<style>
+  .indietro {
+    margin-bottom: 24px;
+  }
+
+  .aggiunta {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    grid-template-areas:
+      'campi calendario'
+      'invio calendario';
+    grid-template-rows: auto 1fr;
+    gap: 24px 40px;
+    align-items: start;
+  }
+
+  .campi {
+    grid-area: campi;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .calendario {
+    grid-area: calendario;
+  }
+
+  .invio {
+    grid-area: invio;
+    width: 100%;
+    padding: 14px;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .titolo-campo {
+    margin: 0 0 12px;
+    font-size: 26px;
+    font-weight: 700;
+  }
+
+  .campo {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 14px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--fsl-text);
+    font-size: 19px;
+  }
+
+  .campo::placeholder {
+    color: var(--fsl-muted);
+  }
+
+  .campo:focus {
+    outline: 2px solid var(--fsl-red);
+    outline-offset: 0;
+  }
+
+  textarea.campo {
+    min-height: 130px;
+    margin-bottom: 36px;
+    resize: vertical;
+  }
+
+  .extra {
+    padding: 22px 24px 6px;
+    border-radius: 10px;
+    background: var(--fsl-surface);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
+  }
+
+  .extra h2 {
+    margin: 0 0 14px;
+    font-size: 20px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .etichetta {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .coppia {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
+
+  @media (max-width: 1000px) {
+    .aggiunta {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas:
+        'campi'
+        'calendario'
+        'invio';
+      grid-template-rows: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .coppia {
+      grid-template-columns: 1fr;
+    }
+
+    .titolo-campo {
+      font-size: 22px;
+    }
+  }
+</style>
